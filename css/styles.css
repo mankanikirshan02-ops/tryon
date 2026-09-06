@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --tryon-primary: #163326;
+  --tryon-primary-hover: #0e2219;
+  --tryon-primary-light: #e4efe7;
+  --tryon-primary-text: #163326;
+  --tryon-bg: #f8f9fa;
+  --tryon-card: #ffffff;
+  --tryon-border: #eaeeec;
+  --tryon-border-subtle: #f0f3f1;
+  --tryon-text-main: #111827;
+  --tryon-text-muted: #64748b;
+  --tryon-text-subtle: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--tryon-bg);
+  color: var(--tryon-text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Glass & Card Effects */
+.tryon-card {
+  background-color: #ffffff;
+  border: 1px solid #eaeeec;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  border-radius: 1rem;
+}
+
+.tryon-card-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tryon-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Active Nav Pill */
+.nav-pill-active {
+  background-color: #e4efe7 !important;
+  color: #163326 !important;
+  font-weight: 600 !important;
+}
+
+.nav-pill-active svg {
+  color: #163326 !important;
+}
+
+/* Brand Buttons */
+.btn-primary {
+  background-color: #163326;
+  color: #ffffff;
+  transition: all 0.15s ease-in-out;
+}
+.btn-primary:hover {
+  background-color: #0e2219;
+  box-shadow: 0 4px 12px rgba(22, 51, 38, 0.2);
+}
+
+.btn-secondary {
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease-in-out;
+}
+.btn-secondary:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* Status Badges */
+.badge-in-stock,
+.badge-delivered,
+.badge-active {
+  background-color: #e6f4ea;
+  color: #137333;
+  border: 1px solid #ceead6;
+}
+
+.badge-low-stock,
+.badge-pending {
+  background-color: #fef7e0;
+  color: #b06000;
+  border: 1px solid #feefc3;
+}
+
+.badge-processing {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  border: 1px solid #d2e3fc;
+}
+
+.badge-shipped {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.badge-out-of-stock,
+.badge-cancelled,
+.badge-inactive {
+  background-color: #fce8e6;
+  color: #c5221f;
+  border: 1px solid #fad2cf;
+}
+
+/* Drawer Transitions */
+.drawer-backdrop {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-in-out;
+}
+
+.drawer-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer-panel {
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drawer-panel.active {
+  transform: translateX(0);
+}
+
+/* Modal Animations */
+.modal-backdrop {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.modal-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  transform: scale(0.96) translateY(8px);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-backdrop.active .modal-content {
+  transform: scale(1) translateY(0);
+}
+
+/* Banner Gradients */
+.banner-greeting {
+  background: linear-gradient(135deg, #f7f3ee 0%, #ebe3db 50%, #dfd5cb 100%);
+}
+
+.banner-new-collection {
+  background: linear-gradient(135deg, #2b3a32 0%, #17271f 100%);
+}
+
+/* Notification Toast */
+.toast-item {
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Pulse indicator */
+.badge-pulse {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
