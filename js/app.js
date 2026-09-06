@@ -9,10 +9,23 @@
 
   function init() {
     // Check if user is logged in
-    const currentUser = window.TryonStore.getCurrentUser();
+    let currentUser = window.TryonStore.getCurrentUser();
     if (!currentUser) {
-      // Default to login
-      window.location.hash = '#login';
+      if (window.location.hash === '#login') {
+        // User explicitly navigated to login
+      } else {
+        // Auto-login as Super Admin for seamless live preview
+        currentUser = (window.TryonStore.getState().users && window.TryonStore.getState().users[0]) || {
+          id: 'usr-1',
+          name: 'Tryon Admin',
+          email: 'admin@tryon.demo',
+          role: 'Admin',
+          status: 'Active',
+          avatar: 'T'
+        };
+        window.TryonStore.setCurrentUser(currentUser);
+        if (!window.location.hash) window.location.hash = '#dashboard';
+      }
     } else if (!window.location.hash || window.location.hash === '#login') {
       window.location.hash = '#dashboard';
     }
