@@ -51,27 +51,9 @@
     return `
       <div class="space-y-6">
         
-        <!-- Top Greeting Banner & Hero Aesthetic -->
-        <div class="tryon-card overflow-hidden banner-greeting p-6 sm:p-8 relative border border-[#E2DDD5]">
-          <div class="max-w-xl relative z-10">
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#163326]">
-              Good Morning,<br />
-              <span class="text-[#1A3C2F]">${userName} 👋</span>
-            </h1>
-            <p class="text-xs sm:text-sm text-[#5C6F64] mt-2 leading-relaxed">
-              Here's what's happening with your store today.
-            </p>
-          </div>
-
-          <!-- Decorative Typography & Image Cutout -->
-          <div class="absolute right-0 top-0 bottom-0 w-1/3 sm:w-2/5 hidden sm:flex items-center justify-end pr-8 pointer-events-none opacity-90">
-            <div class="text-right">
-              <span class="block text-2xl font-black tracking-widest text-[#244234]/15 uppercase">BETTER</span>
-              <span class="block text-3xl font-black tracking-widest text-[#244234]/20 uppercase -mt-2">STYLE</span>
-              <span class="block text-2xl font-black tracking-widest text-[#244234]/15 uppercase -mt-2">BIGGER</span>
-              <span class="block text-3xl font-black tracking-widest text-[#244234]/25 uppercase -mt-2">DREAMS</span>
-            </div>
-          </div>
+        <!-- Mid Summer Collection Banner -->
+        <div class="tryon-card overflow-hidden relative border border-[#E2DDD5] shadow-sm rounded-2xl">
+          <img src="mid_summer_banner.png" alt="Mid Summer Collection 26 - Toes to Nose" class="w-full h-auto object-cover max-h-56 sm:max-h-64 rounded-2xl" />
         </div>
 
         <!-- KPI Cards Grid (4 Cards) -->
