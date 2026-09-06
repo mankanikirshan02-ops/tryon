@@ -44,9 +44,14 @@ CREATE TABLE IF NOT EXISTS public.orders (
     items JSONB NOT NULL,
     subtotal NUMERIC(10,2) NOT NULL DEFAULT 0,
     discount NUMERIC(10,2) NOT NULL DEFAULT 0,
+    shipping_fee NUMERIC(10,2) NOT NULL DEFAULT 0,
+    tax NUMERIC(10,2) NOT NULL DEFAULT 0,
     total NUMERIC(10,2) NOT NULL DEFAULT 0,
+    payment_method TEXT NOT NULL DEFAULT 'Credit Card',
+    payment_status TEXT NOT NULL DEFAULT 'Pending',
     status TEXT NOT NULL DEFAULT 'Pending',
     date DATE DEFAULT CURRENT_DATE,
+    history JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

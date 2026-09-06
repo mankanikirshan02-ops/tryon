@@ -654,10 +654,39 @@
     return true;
   }
 
-  // --- ORDERS ---
+  // --- ORDERS & STATUS LIFECYCLE ---
+  const ALLOWED_ORDER_STATUSES = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned', 'Refunded'];
+  const ALLOWED_PAYMENT_STATUSES = ['Pending', 'Paid', 'Failed', 'Refunded'];
+  const ALLOWED_PAYMENT_METHODS = ['Credit Card', 'Cash on Delivery', 'PayPal', 'Bank Transfer', 'Debit Card'];
+
+  function validateStatusTransition(currentStatus, newStatus, force = false) {
+    if (currentStatus === newStatus) return { valid: true };
+    if (force) return { valid: true };
+
+    const allowedMap = {
+      'Pending': ['Confirmed', 'Cancelled'],
+      'Confirmed': ['Processing', 'Cancelled'],
+      'Processing': ['Shipped', 'Cancelled'],
+      'Shipped': ['Delivered', 'Returned', 'Cancelled'],
+      'Delivered': ['Returned', 'Refunded'],
+      'Cancelled': ['Pending', 'Confirmed'],
+      'Returned': ['Refunded'],
+      'Refunded': []
+    };
+
+    const allowed = allowedMap[currentStatus] || [];
+    if (!allowed.includes(newStatus)) {
+      return {
+        valid: false,
+        error: `Cannot transition order status from "${currentStatus}" to "${newStatus}". Allowed transitions: ${allowed.length > 0 ? allowed.join(', ') : 'None (Terminal state)'}.`
+      };
+    }
+    return { valid: true };
+  }
+
   function createOrder(data) {
-    // data: { customerId, customerName, customerEmail, customerPhone, customerAddress, items: [{ productId, quantity, price }], discount: 0, status: 'Pending' }
-    let customer = state.customers.find((c) => c.id === data.customerId);
+    // data: { id, customerId, customerName, customerEmail, customerPhone, customerAddress, city, postalCode, items: [{ productId, name, sku, size, color, quantity, price, discount }], discount: 0, shippingFee: 0, tax: 0, paymentMethod: 'Credit Card', paymentStatus: 'Pending', status: 'Pending', date }
+    let customer = state.customers.find((c) => c.id === data.customerId || (data.customerEmail && c.email.toLowerCase() === data.customerEmail.toLowerCase()));
     if (!customer && data.customerName) {
       // Auto-create customer if new
       customer = addCustomer({
@@ -668,7 +697,7 @@
       });
     }
 
-    if (!customer) {
+    if (!customer && !data.customer) {
       throw new Error('Please select or specify a valid customer for this order.');
     }
 
@@ -681,18 +710,23 @@
     const orderItems = [];
 
     for (const item of data.items) {
-      const product = state.products.find((p) => p.id === item.productId);
+      const product = state.products.find((p) => p.id === item.productId || (item.sku && p.sku === item.sku));
       const qty = parseInt(item.quantity, 10) || 1;
-      const unitPrice = product ? (product.salePrice || product.price) : (parseFloat(item.price) || 0);
-      const lineTotal = unitPrice * qty;
+      const unitPrice = parseFloat(item.unitPrice || item.price) || (product ? (product.salePrice || product.price) : 0);
+      const lineDiscount = parseFloat(item.discount) || 0;
+      const lineTotal = Math.max(0, (unitPrice * qty) - lineDiscount);
       subtotal += lineTotal;
 
       orderItems.push({
-        productId: item.productId,
-        name: product ? product.name : (item.name || 'Custom Product'),
+        productId: product ? product.id : (item.productId || 'PRD-CUSTOM'),
+        sku: item.sku || (product ? product.sku : 'N/A'),
+        name: item.name || (product ? product.name : 'Apparel Item'),
+        size: item.size || (product ? product.size : 'M'),
+        color: item.color || (product ? product.color : 'Default'),
         category: product ? product.category : 'General',
-        image: product ? product.image : APPAREL_IMAGE_PRESETS[0].url,
+        image: item.image || (product ? product.image : APPAREL_IMAGE_PRESETS[0].url),
         price: unitPrice,
+        discount: lineDiscount,
         quantity: qty,
         total: lineTotal
       });
@@ -710,38 +744,54 @@
     }
 
     const discount = parseFloat(data.discount) || 0;
-    const total = Math.max(0, subtotal - discount);
+    const shippingFee = parseFloat(data.shippingFee) || 0;
+    const tax = parseFloat(data.tax) || 0;
+    const grandTotal = Math.max(0, subtotal - discount + shippingFee + tax);
 
-    const orderNumber = 'ORD-' + (1000 + state.orders.length + 1);
+    const orderId = data.id ? data.id.trim() : ('ORD-' + (1000 + state.orders.length + 1));
+    const nowIso = new Date().toISOString();
+    const orderStatus = data.status || 'Pending';
+
     const newOrder = {
-      id: orderNumber,
+      id: orderId,
       customer: {
-        id: customer.id,
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone || '+1 (555) 234-5678',
-        address: customer.address || '742 Fashion Ave, NY'
+        id: customer ? customer.id : (data.customer ? data.customer.id : 'CUS-GUEST'),
+        name: data.customerName || (customer ? customer.name : 'Guest Customer'),
+        email: data.customerEmail || (customer ? customer.email : 'guest@example.com'),
+        phone: data.customerPhone || (customer ? customer.phone : ''),
+        address: data.customerAddress || (customer ? customer.address : ''),
+        city: data.city || (customer ? (customer.city || 'New York') : 'New York'),
+        postalCode: data.postalCode || '10001'
       },
       items: orderItems,
       subtotal: subtotal,
       discount: discount,
-      total: total,
-      status: data.status || 'Pending', // Pending | Processing | Shipped | Delivered | Cancelled
-      date: new Date().toISOString().split('T')[0],
-      createdAt: new Date().toISOString()
+      shippingFee: shippingFee,
+      tax: tax,
+      total: grandTotal,
+      paymentMethod: data.paymentMethod || 'Credit Card',
+      paymentStatus: data.paymentStatus || 'Pending',
+      status: orderStatus,
+      date: data.date || data.order_date || new Date().toISOString().split('T')[0],
+      history: [
+        { status: orderStatus, timestamp: nowIso, note: 'Order created' }
+      ],
+      createdAt: nowIso
     };
 
     state.orders.unshift(newOrder);
 
     // Synchronize Customer order metrics!
-    customer.ordersCount = (customer.ordersCount || 0) + 1;
-    customer.totalSpent = (customer.totalSpent || 0) + total;
+    if (customer) {
+      customer.ordersCount = (customer.ordersCount || 0) + 1;
+      customer.totalSpent = (customer.totalSpent || 0) + grandTotal;
+    }
 
-    pushNotification('Order Created', `Order #${orderNumber} placed for $${total.toLocaleString()}`, 'success');
+    pushNotification('Order Created', `Order #${orderId} placed for $${grandTotal.toLocaleString()}`, 'success');
 
     if (window.TryonSupabase) {
       window.TryonSupabase.pushOrder(newOrder);
-      window.TryonSupabase.pushCustomer(customer);
+      if (customer) window.TryonSupabase.pushCustomer(customer);
       orderItems.forEach((it) => {
         const prod = state.products.find((p) => p.id === it.productId);
         if (prod) window.TryonSupabase.pushProduct(prod);
@@ -752,14 +802,54 @@
     return newOrder;
   }
 
-  function updateOrderStatus(orderId, newStatus) {
+  function updateOrderStatus(orderId, newStatus, force = false) {
     const order = state.orders.find((o) => o.id === orderId);
     if (!order) return null;
+
+    const validation = validateStatusTransition(order.status, newStatus, force);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
+    const prevStatus = order.status;
     order.status = newStatus;
-    pushNotification('Order Status Changed', `Order #${orderId} marked as ${newStatus}`, 'info');
+
+    if (!Array.isArray(order.history)) order.history = [];
+    order.history.push({
+      status: newStatus,
+      timestamp: new Date().toISOString(),
+      note: `Status updated from ${prevStatus} to ${newStatus}`
+    });
+
+    // Auto update payment status on Delivered or Cancelled/Refunded
+    if (newStatus === 'Delivered' && order.paymentStatus === 'Pending') {
+      order.paymentStatus = 'Paid';
+    } else if (newStatus === 'Refunded') {
+      order.paymentStatus = 'Refunded';
+    }
+
+    pushNotification('Order Status Changed', `Order #${orderId} updated to ${newStatus}`, 'info');
     if (window.TryonSupabase) window.TryonSupabase.pushOrder(order);
     notify('order:update_status', order);
     return order;
+  }
+
+  function bulkUpdateOrderStatus(orderIds, newStatus, force = false) {
+    if (!Array.isArray(orderIds) || orderIds.length === 0) return { updatedCount: 0, errors: [] };
+    let updatedCount = 0;
+    const errors = [];
+
+    orderIds.forEach((id) => {
+      try {
+        updateOrderStatus(id, newStatus, force);
+        updatedCount++;
+      } catch (err) {
+        errors.push(`Order #${id}: ${err.message}`);
+      }
+    });
+
+    pushNotification('Bulk Order Status Update', `Updated ${updatedCount} order(s) to ${newStatus}`, 'success');
+    return { updatedCount, errors };
   }
 
   function deleteOrder(orderId) {
@@ -768,7 +858,7 @@
     const removed = state.orders.splice(idx, 1)[0];
 
     // Adjust customer metrics
-    const customer = state.customers.find((c) => c.id === removed.customer.id);
+    const customer = state.customers.find((c) => c.id === (removed.customer ? removed.customer.id : ''));
     if (customer) {
       customer.ordersCount = Math.max(0, (customer.ordersCount || 1) - 1);
       customer.totalSpent = Math.max(0, (customer.totalSpent || removed.total) - removed.total);
@@ -779,6 +869,38 @@
     if (window.TryonSupabase) window.TryonSupabase.deleteOrder(orderId);
     notify('order:delete', removed);
     return true;
+  }
+
+  function bulkDeleteOrders(orderIds) {
+    if (!Array.isArray(orderIds) || orderIds.length === 0) return 0;
+    let count = 0;
+    orderIds.forEach((id) => {
+      if (deleteOrder(id)) count++;
+    });
+    pushNotification('Bulk Delete Orders', `Deleted ${count} order(s)`, 'warning');
+    return count;
+  }
+
+  function bulkImportOrders(validatedOrdersList) {
+    if (!Array.isArray(validatedOrdersList) || validatedOrdersList.length === 0) return { importedCount: 0 };
+    const newlyCreatedOrders = [];
+
+    validatedOrdersList.forEach((ordData) => {
+      try {
+        const orderObj = createOrder(ordData);
+        newlyCreatedOrders.push(orderObj);
+      } catch (err) {
+        console.warn('Import single order error:', err);
+      }
+    });
+
+    if (window.TryonSupabase && newlyCreatedOrders.length > 0) {
+      window.TryonSupabase.pushOrdersBulk(newlyCreatedOrders);
+    }
+
+    pushNotification('CSV Import Complete', `Successfully imported ${newlyCreatedOrders.length} order(s)`, 'success');
+    notify('order:bulk_import', newlyCreatedOrders);
+    return { importedCount: newlyCreatedOrders.length };
   }
 
   // --- EXPENSES (for Profit & Loss) ---
@@ -1528,7 +1650,14 @@
     // Orders
     createOrder,
     updateOrderStatus,
+    validateStatusTransition,
+    bulkUpdateOrderStatus,
     deleteOrder,
+    bulkDeleteOrders,
+    bulkImportOrders,
+    ALLOWED_ORDER_STATUSES,
+    ALLOWED_PAYMENT_STATUSES,
+    ALLOWED_PAYMENT_METHODS,
     // Expenses
     addExpense,
     deleteExpense,

@@ -123,9 +123,40 @@ body {
   border: 1px solid #e9d5ff;
 }
 
+.badge-confirmed {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.badge-returned {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.badge-refunded {
+  background-color: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #ffedd5;
+}
+
+.badge-paid {
+  background-color: #e6f4ea;
+  color: #137333;
+  border: 1px solid #ceead6;
+}
+
+.badge-unpaid {
+  background-color: #fef7e0;
+  color: #b06000;
+  border: 1px solid #feefc3;
+}
+
 .badge-out-of-stock,
 .badge-cancelled,
-.badge-inactive {
+.badge-inactive,
+.badge-failed {
   background-color: #fce8e6;
   color: #c5221f;
   border: 1px solid #fad2cf;

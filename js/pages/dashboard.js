@@ -52,27 +52,9 @@
     return `
       <div class="space-y-6">
         
-        <!-- Top Greeting Banner & Hero Aesthetic -->
-        <div class="tryon-card overflow-hidden banner-greeting p-6 sm:p-8 relative border border-[#E2DDD5]">
-          <div class="max-w-xl relative z-10">
-            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#163326]">
-              Good Morning,<br />
-              <span class="text-[#1A3C2F]">${userName} 👋</span>
-            </h1>
-            <p class="text-xs sm:text-sm text-[#5C6F64] mt-2 leading-relaxed">
-              Here's what's happening with your store today.
-            </p>
-          </div>
-
-          <!-- Decorative Typography & Image Cutout -->
-          <div class="absolute right-0 top-0 bottom-0 w-1/3 sm:w-2/5 hidden sm:flex items-center justify-end pr-8 pointer-events-none opacity-90">
-            <div class="text-right">
-              <span class="block text-2xl font-black tracking-widest text-[#244234]/15 uppercase">BETTER</span>
-              <span class="block text-3xl font-black tracking-widest text-[#244234]/20 uppercase -mt-2">STYLE</span>
-              <span class="block text-2xl font-black tracking-widest text-[#244234]/15 uppercase -mt-2">BIGGER</span>
-              <span class="block text-3xl font-black tracking-widest text-[#244234]/25 uppercase -mt-2">DREAMS</span>
-            </div>
-          </div>
+        <!-- TRYON Mid Summer Collection Banner -->
+        <div class="tryon-card overflow-hidden relative border border-[#EAECEE] shadow-sm rounded-2xl">
+          <img src="mid_summer_banner.png" alt="TRYON Mid Summer Collection '26" class="w-full h-auto rounded-2xl block" />
         </div>
 
         <!-- KPI Cards Grid (4 Cards) -->
@@ -364,9 +346,9 @@
               </div>
             </div>
 
-            <!-- New Collection Promo Card (from reference image) -->
-            <div class="tryon-card overflow-hidden p-5 text-white banner-new-collection relative">
-              <div class="relative z-10 max-w-[200px]">
+            <!-- New Collection Promo Card with Image -->
+            <div class="tryon-card overflow-hidden p-5 text-white banner-new-collection relative min-h-[160px] flex items-center justify-between">
+              <div class="relative z-10 max-w-[180px]">
                 <span class="text-[10px] font-extrabold tracking-widest text-[#A3D9A5] uppercase">New Collection</span>
                 <h4 class="text-sm font-bold mt-1 leading-snug">Tryon Style. Timeless Looks.</h4>
                 <button onclick="window.location.hash='#products'" class="mt-4 inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-xs transition-colors">
@@ -374,8 +356,9 @@
                   <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                 </button>
               </div>
-              <div class="absolute right-0 bottom-0 top-0 w-28 opacity-30 flex items-center justify-center pointer-events-none">
-                <i data-lucide="sparkles" class="w-20 h-20 text-[#A3D9A5]"></i>
+              <div class="absolute right-0 top-0 bottom-0 w-36 overflow-hidden rounded-r-2xl opacity-85 pointer-events-none">
+                <img src="new_collection_promo.png" alt="New Collection Lookbook" class="w-full h-full object-cover" />
+                <div class="absolute inset-0 bg-gradient-to-r from-[#17271f] via-transparent to-transparent"></div>
               </div>
             </div>
 

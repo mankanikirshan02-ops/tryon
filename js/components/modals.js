@@ -1152,6 +1152,527 @@
     });
   }
 
+  function downloadCSV(filename, content) {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function openCsvImportModal() {
+    const store = window.TryonStore;
+    const state = store.getState();
+    const existingOrderIds = new Set(state.orders.map((o) => (o.id || '').toLowerCase()));
+
+    const container = getModalContainer();
+
+    container.innerHTML = `
+      <div class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl border border-[#EAECEE] shadow-2xl w-full max-w-4xl overflow-hidden my-8 animate-in fade-in zoom-in-95">
+          
+          <!-- Modal Header -->
+          <div class="px-6 py-4 border-b border-[#F0F3F1] flex items-center justify-between bg-[#FAFCFB]">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-xl bg-[#E4EFE7] text-[#163326] flex items-center justify-center font-bold">
+                <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-[#111827]">Import Orders CSV</h3>
+                <p class="text-xs text-[#64748B] mt-0.5">Upload, validate, preview, and import bulk orders safely</p>
+              </div>
+            </div>
+            <button id="btn-close-csv-modal" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg">
+              <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+          </div>
+
+          <!-- Modal Body Content -->
+          <div id="csv-modal-body" class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+            
+            <!-- Upload Area -->
+            <div id="csv-upload-dropzone" class="border-2 border-dashed border-gray-300 hover:border-[#163326] bg-[#FAFCFB] rounded-2xl p-8 text-center transition-all cursor-pointer">
+              <input type="file" id="csv-file-input" accept=".csv" class="hidden" />
+              <div class="w-14 h-14 rounded-full bg-[#E4EFE7] text-[#163326] flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="file-spreadsheet" class="w-7 h-7"></i>
+              </div>
+              <p class="text-sm font-bold text-[#111827]">Click to upload or drag & drop CSV file</p>
+              <p class="text-xs text-[#64748B] mt-1">Expected columns: order_id, customer_name, phone, email, product, sku, size, color, quantity, unit_price, payment_method, payment_status, order_status, address, city, postal_code, order_date</p>
+              
+              <div class="mt-4 inline-flex items-center space-x-2">
+                <button type="button" id="btn-download-sample-csv" class="text-xs font-semibold text-[#163326] hover:underline flex items-center space-x-1">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                  <span>Download Sample CSV Template</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Preview & Validation Results Container (Hidden initially) -->
+            <div id="csv-preview-container" class="hidden space-y-4"></div>
+
+          </div>
+
+          <!-- Modal Footer Actions -->
+          <div class="px-6 py-4 border-t border-[#F0F3F1] bg-[#FAFCFB] flex items-center justify-between">
+            <button id="btn-cancel-csv-import" class="px-4 py-2.5 rounded-xl border border-[#D1D5DB] text-xs font-semibold text-gray-700 hover:bg-gray-50">
+              Cancel
+            </button>
+
+            <div class="flex items-center space-x-2" id="csv-footer-actions">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    `;
+
+    if (window.lucide) window.lucide.createIcons();
+
+    const closeBtn = document.getElementById('btn-close-csv-modal');
+    const cancelBtn = document.getElementById('btn-cancel-csv-import');
+    const dropzone = document.getElementById('csv-upload-dropzone');
+    const fileInput = document.getElementById('csv-file-input');
+    const sampleBtn = document.getElementById('btn-download-sample-csv');
+    const previewContainer = document.getElementById('csv-preview-container');
+    const footerActions = document.getElementById('csv-footer-actions');
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+    // Download Sample CSV
+    if (sampleBtn) {
+      sampleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sampleHeader = 'order_id,customer_name,phone,email,product,sku,size,color,quantity,unit_price,payment_method,payment_status,order_status,address,city,postal_code,order_date\n';
+        const sampleRows =
+          'ORD-9001,Emily Watson,+1 (555) 392-1029,emily.w@example.com,Classic Oversized Tee,SKU-849201,L,Sage Green,2,49.00,Credit Card,Paid,Confirmed,123 Fashion Street,New York,10001,2026-09-06\n' +
+          'ORD-9002,Marcus Vance,+1 (555) 849-2041,marcus.v@example.com,Men Denim Jacket,SKU-992014,XL,Blue,1,129.00,Cash on Delivery,Pending,Processing,456 Denim Way,Los Angeles,90001,2026-09-06\n';
+        downloadCSV('tryon_orders_sample_template.csv', sampleHeader + sampleRows);
+      });
+    }
+
+    // Dropzone File Select
+    if (dropzone && fileInput) {
+      dropzone.addEventListener('click', () => fileInput.click());
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('border-[#163326]', 'bg-[#E4EFE7]/30');
+      });
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('border-[#163326]', 'bg-[#E4EFE7]/30');
+      });
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('border-[#163326]', 'bg-[#E4EFE7]/30');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          processCSVFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          processCSVFile(e.target.files[0]);
+        }
+      });
+    }
+
+    function processCSVFile(file) {
+      if (!file.name.endsWith('.csv') && file.type !== 'text/csv' && file.type !== 'application/vnd.ms-excel') {
+        window.TryonApp.showToast('Please upload a valid CSV file.', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        const rows = parseCSVText(text);
+        if (rows.length < 2) {
+          window.TryonApp.showToast('CSV file is empty or missing data rows.', 'error');
+          return;
+        }
+
+        // Header mapping
+        const headers = rows[0].map((h) => h.toLowerCase().trim());
+        const getIdx = (name) => headers.indexOf(name);
+
+        const idIdx = getIdx('order_id') !== -1 ? getIdx('order_id') : getIdx('id');
+        const nameIdx = getIdx('customer_name') !== -1 ? getIdx('customer_name') : getIdx('name');
+        const phoneIdx = getIdx('phone');
+        const emailIdx = getIdx('email');
+        const prodIdx = getIdx('product') !== -1 ? getIdx('product') : getIdx('product_name');
+        const skuIdx = getIdx('sku');
+        const sizeIdx = getIdx('size');
+        const colorIdx = getIdx('color');
+        const qtyIdx = getIdx('quantity') !== -1 ? getIdx('quantity') : getIdx('qty');
+        const priceIdx = getIdx('unit_price') !== -1 ? getIdx('unit_price') : getIdx('price');
+        const pMethodIdx = getIdx('payment_method');
+        const pStatusIdx = getIdx('payment_status');
+        const oStatusIdx = getIdx('order_status') !== -1 ? getIdx('order_status') : getIdx('status');
+        const addrIdx = getIdx('address');
+        const cityIdx = getIdx('city');
+        const zipIdx = getIdx('postal_code') !== -1 ? getIdx('postal_code') : getIdx('zip');
+        const dateIdx = getIdx('order_date') !== -1 ? getIdx('order_date') : getIdx('date');
+
+        if (nameIdx === -1 || prodIdx === -1 || qtyIdx === -1 || priceIdx === -1) {
+          window.TryonApp.showToast('CSV missing required headers: customer_name, product, quantity, unit_price', 'error');
+          return;
+        }
+
+        // Validate rows
+        const parsedRows = [];
+        const seenCsvOrderIds = new Set();
+        let totalCount = rows.length - 1;
+        let validCount = 0;
+        let failedCount = 0;
+        let duplicateCount = 0;
+
+        for (let i = 1; i < rows.length; i++) {
+          const rowData = rows[i];
+          if (!rowData || rowData.length === 0 || (rowData.length === 1 && !rowData[0])) continue;
+
+          const rowNum = i + 1; // 1-indexed file line
+          const errors = [];
+          let isDuplicate = false;
+
+          const rawId = idIdx !== -1 && rowData[idIdx] ? rowData[idIdx].trim() : `ORD-CSV-${1000 + i}`;
+          const custName = nameIdx !== -1 && rowData[nameIdx] ? rowData[nameIdx].trim() : '';
+          const phone = phoneIdx !== -1 && rowData[phoneIdx] ? rowData[phoneIdx].trim() : '';
+          const email = emailIdx !== -1 && rowData[emailIdx] ? rowData[emailIdx].trim() : '';
+          const product = prodIdx !== -1 && rowData[prodIdx] ? rowData[prodIdx].trim() : '';
+          const sku = skuIdx !== -1 && rowData[skuIdx] ? rowData[skuIdx].trim() : '';
+          const size = sizeIdx !== -1 && rowData[sizeIdx] ? rowData[sizeIdx].trim() : 'M';
+          const color = colorIdx !== -1 && rowData[colorIdx] ? rowData[colorIdx].trim() : 'Default';
+          const qtyVal = qtyIdx !== -1 ? parseInt(rowData[qtyIdx], 10) : 1;
+          const priceVal = priceIdx !== -1 ? parseFloat(rowData[priceIdx]) : 0;
+          const pMethod = pMethodIdx !== -1 && rowData[pMethodIdx] ? rowData[pMethodIdx].trim() : 'Credit Card';
+          const pStatus = pStatusIdx !== -1 && rowData[pStatusIdx] ? rowData[pStatusIdx].trim() : 'Pending';
+          const oStatus = oStatusIdx !== -1 && rowData[oStatusIdx] ? rowData[oStatusIdx].trim() : 'Pending';
+          const address = addrIdx !== -1 && rowData[addrIdx] ? rowData[addrIdx].trim() : '';
+          const city = cityIdx !== -1 && rowData[cityIdx] ? rowData[cityIdx].trim() : 'New York';
+          const zip = zipIdx !== -1 && rowData[zipIdx] ? rowData[zipIdx].trim() : '10001';
+          const orderDate = dateIdx !== -1 && rowData[dateIdx] ? rowData[dateIdx].trim() : new Date().toISOString().split('T')[0];
+
+          // Validations
+          if (!custName) errors.push('Customer name is required.');
+          if (!product) errors.push('Product name is required.');
+
+          if (isNaN(qtyVal) || qtyVal <= 0) {
+            errors.push('Quantity must be a valid positive number.');
+          }
+
+          if (isNaN(priceVal) || priceVal < 0) {
+            errors.push('Unit price must be a valid non-negative number.');
+          }
+
+          if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            errors.push('Invalid email format.');
+          }
+
+          const validStatuses = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned', 'Refunded'];
+          if (oStatus && !validStatuses.map((s) => s.toLowerCase()).includes(oStatus.toLowerCase())) {
+            errors.push(`Invalid order status "${oStatus}". Must be one of: ${validStatuses.join(', ')}.`);
+          }
+
+          // Duplicate detection against DB and within CSV
+          const idLower = rawId.toLowerCase();
+          if (existingOrderIds.has(idLower)) {
+            isDuplicate = true;
+            errors.push(`Duplicate Order ID: ${rawId} already exists in database.`);
+          } else if (seenCsvOrderIds.has(idLower)) {
+            isDuplicate = true;
+            errors.push(`Duplicate Order ID: ${rawId} repeated inside CSV.`);
+          } else {
+            seenCsvOrderIds.add(idLower);
+          }
+
+          const isValid = errors.length === 0;
+
+          if (isValid) {
+            validCount++;
+          } else if (isDuplicate) {
+            duplicateCount++;
+            failedCount++;
+          } else {
+            failedCount++;
+          }
+
+          parsedRows.push({
+            rowNum,
+            rawId,
+            custName,
+            phone,
+            email,
+            product,
+            sku,
+            size,
+            color,
+            qtyVal,
+            priceVal,
+            pMethod,
+            pStatus,
+            oStatus,
+            address,
+            city,
+            zip,
+            orderDate,
+            isValid,
+            isDuplicate,
+            errors
+          });
+        }
+
+        // Render preview table & summary
+        renderPreviewScreen(parsedRows, totalCount, validCount, failedCount, duplicateCount);
+      };
+
+      reader.readAsText(file);
+    }
+
+    function renderPreviewScreen(parsedRows, totalCount, validCount, failedCount, duplicateCount) {
+      dropzone.classList.add('hidden');
+      previewContainer.classList.remove('hidden');
+
+      const validOrdersToImport = parsedRows
+        .filter((r) => r.isValid)
+        .map((r) => ({
+          id: r.rawId,
+          customerName: r.custName,
+          customerEmail: r.email,
+          customerPhone: r.phone,
+          customerAddress: r.address,
+          city: r.city,
+          postalCode: r.zip,
+          items: [
+            {
+              productId: 'PRD-CSV',
+              sku: r.sku || 'N/A',
+              name: r.product,
+              size: r.size,
+              color: r.color,
+              quantity: r.qtyVal,
+              unitPrice: r.priceVal,
+              discount: 0
+            }
+          ],
+          paymentMethod: r.pMethod,
+          paymentStatus: r.pStatus,
+          status: r.oStatus,
+          date: r.orderDate
+        }));
+
+      previewContainer.innerHTML = `
+        <!-- Metrics Summary Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3.5 rounded-2xl bg-gray-50 border border-gray-200">
+            <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">Total Rows</span>
+            <span class="text-xl font-extrabold text-[#111827] mt-0.5 block">${totalCount}</span>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200">
+            <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider block">Valid Rows</span>
+            <span class="text-xl font-extrabold text-emerald-900 mt-0.5 block">${validCount}</span>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200">
+            <span class="text-[11px] font-bold text-amber-700 uppercase tracking-wider block">Duplicates</span>
+            <span class="text-xl font-extrabold text-amber-900 mt-0.5 block">${duplicateCount}</span>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-red-50 border border-red-200">
+            <span class="text-[11px] font-bold text-red-700 uppercase tracking-wider block">Failed Rows</span>
+            <span class="text-xl font-extrabold text-red-900 mt-0.5 block">${failedCount}</span>
+          </div>
+        </div>
+
+        <!-- Row-by-Row Preview Table -->
+        <div class="border border-[#EAECEE] rounded-2xl overflow-hidden bg-white">
+          <div class="px-4 py-3 bg-[#FAFCFB] border-b border-[#F0F3F1] flex items-center justify-between">
+            <h4 class="text-xs font-bold text-[#111827] uppercase tracking-wider">CSV Data Validation Preview</h4>
+            <span class="text-xs text-gray-500">Only valid rows will be imported into database</span>
+          </div>
+
+          <div class="max-h-64 overflow-y-auto overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-[#F8F9FA] text-[#64748B] uppercase tracking-wider text-[10px] font-bold border-b border-[#EAECEE]">
+                <tr>
+                  <th class="px-3 py-2 text-center w-12">Row</th>
+                  <th class="px-3 py-2">Order ID</th>
+                  <th class="px-3 py-2">Customer</th>
+                  <th class="px-3 py-2">Product</th>
+                  <th class="px-3 py-2 text-center">Qty</th>
+                  <th class="px-3 py-2">Price</th>
+                  <th class="px-3 py-2">Validation Status</th>
+                  <th class="px-3 py-2">Validation Remarks / Error</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                ${parsedRows
+                  .map(
+                    (r) => `
+                  <tr class="${r.isValid ? 'bg-white hover:bg-emerald-50/40' : r.isDuplicate ? 'bg-amber-50/40' : 'bg-red-50/40'}">
+                    <td class="px-3 py-2 text-center font-semibold text-gray-500">${r.rowNum}</td>
+                    <td class="px-3 py-2 font-bold text-[#163326]">${r.rawId}</td>
+                    <td class="px-3 py-2">${r.custName || 'N/A'}</td>
+                    <td class="px-3 py-2">${r.product || 'N/A'}</td>
+                    <td class="px-3 py-2 text-center font-semibold">${r.qtyVal}</td>
+                    <td class="px-3 py-2 font-semibold">$${r.priceVal.toFixed(2)}</td>
+                    <td class="px-3 py-2">
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        r.isValid ? 'bg-emerald-100 text-emerald-800' : r.isDuplicate ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                      }">
+                        ${r.isValid ? 'Valid' : r.isDuplicate ? 'Duplicate' : 'Invalid'}
+                      </span>
+                    </td>
+                    <td class="px-3 py-2 text-[11px] ${r.isValid ? 'text-emerald-700' : 'text-red-600 font-medium'}">
+                      ${r.isValid ? 'Ready to import' : r.errors.join(' ')}
+                    </td>
+                  </tr>
+                `
+                  )
+                  .join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      // Update footer actions
+      let footerHtml = '';
+      if (failedCount > 0) {
+        footerHtml += `
+          <button id="btn-download-error-csv" class="px-3.5 py-2.5 rounded-xl bg-red-50 text-red-600 border border-red-200 text-xs font-semibold hover:bg-red-100 transition-all flex items-center space-x-1.5">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Download Error Log (${failedCount})</span>
+          </button>
+        `;
+      }
+
+      footerHtml += `
+        <button id="btn-confirm-csv-import" class="px-5 py-2.5 rounded-xl bg-[#163326] text-white text-xs font-semibold hover:bg-[#0E2219] transition-all shadow-sm flex items-center space-x-2 ${
+          validCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
+        }" ${validCount === 0 ? 'disabled' : ''}>
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>Import Valid Rows (${validCount})</span>
+        </button>
+      `;
+
+      footerActions.innerHTML = footerHtml;
+      if (window.lucide) window.lucide.createIcons();
+
+      // Download Error CSV Event
+      document.getElementById('btn-download-error-csv')?.addEventListener('click', () => {
+        const errorRows = parsedRows.filter((r) => !r.isValid);
+        let errorCsv = 'row_number,order_id,customer_name,product,quantity,unit_price,error_reasons\n';
+        errorRows.forEach((r) => {
+          errorCsv += `"${r.rowNum}","${r.rawId}","${r.custName}","${r.product}","${r.qtyVal}","${r.priceVal}","${r.errors.join('; ')}"\n`;
+        });
+        downloadCSV(`tryon_orders_import_errors_${Date.now()}.csv`, errorCsv);
+        window.TryonApp.showToast('Downloaded failed rows error log CSV.', 'info');
+      });
+
+      // Confirm Import Event
+      document.getElementById('btn-confirm-csv-import')?.addEventListener('click', () => {
+        if (validOrdersToImport.length === 0) return;
+
+        const result = store.bulkImportOrders(validOrdersToImport);
+        window.TryonApp.showToast(`Import Summary: Successfully imported ${result.importedCount} valid order(s)!`, 'success');
+        closeModal();
+        window.TryonApp.renderRoute();
+      });
+    }
+  }
+
+  // ===================== CSV EXPORT MODAL =====================
+  function openExportModal(ordersToExport = null) {
+    const store = window.TryonStore;
+    const state = store.getState();
+    const targetOrders = ordersToExport || state.orders;
+
+    if (!targetOrders || targetOrders.length === 0) {
+      window.TryonApp.showToast('No orders available to export.', 'warning');
+      return;
+    }
+
+    function exportToCSV(orders) {
+      let csv = 'order_id,customer_name,phone,email,product,sku,size,color,quantity,unit_price,payment_method,payment_status,order_status,address,city,postal_code,order_date,total\n';
+
+      orders.forEach((o) => {
+        const custName = o.customer ? (o.customer.name || '') : '';
+        const phone = o.customer ? (o.customer.phone || '') : '';
+        const email = o.customer ? (o.customer.email || '') : '';
+        const address = o.customer ? (o.customer.address || '') : '';
+        const city = o.customer ? (o.customer.city || 'New York') : 'New York';
+        const zip = o.customer ? (o.customer.postalCode || '10001') : '10001';
+        const pMethod = o.paymentMethod || 'Credit Card';
+        const pStatus = o.paymentStatus || 'Pending';
+        const oStatus = o.status || 'Pending';
+        const date = o.date || new Date().toISOString().split('T')[0];
+
+        const items = Array.isArray(o.items) && o.items.length > 0 ? o.items : [{ name: 'Apparel Item', sku: 'N/A', size: 'M', color: 'Default', quantity: 1, price: o.total }];
+
+        items.forEach((it) => {
+          csv += `"${o.id}","${custName}","${phone}","${email}","${it.name || 'Apparel Item'}","${it.sku || 'N/A'}","${it.size || 'M'}","${it.color || 'Default'}","${it.quantity || 1}","${(it.price || 0).toFixed(2)}","${pMethod}","${pStatus}","${oStatus}","${address}","${city}","${zip}","${date}","${(o.total || 0).toFixed(2)}"\n`;
+        });
+      });
+
+      downloadCSV(`tryon_orders_export_${new Date().toISOString().split('T')[0]}.csv`, csv);
+      window.TryonApp.showToast(`Exported ${orders.length} order(s) to CSV!`, 'success');
+      closeModal();
+    }
+
+    const container = getModalContainer();
+    container.innerHTML = `
+      <div class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-[#EAECEE] shadow-2xl w-full max-w-md overflow-hidden p-6 space-y-5 animate-in fade-in zoom-in-95">
+          
+          <div class="flex items-center space-x-3.5">
+            <div class="w-10 h-10 rounded-xl bg-[#E4EFE7] text-[#163326] flex items-center justify-center shrink-0">
+              <i data-lucide="download" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-[#111827]">Export Orders CSV</h3>
+              <p class="text-xs text-[#64748B] mt-0.5">Generate structured CSV file of order data</p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-[#FAFCFB] border border-[#EAECEE] space-y-3 text-xs">
+            <div class="flex justify-between">
+              <span class="text-[#64748B]">Orders to Export:</span>
+              <strong class="text-[#163326] font-bold">${targetOrders.length} Order(s)</strong>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-[#64748B]">CSV Columns Included:</span>
+              <span class="text-gray-700 font-medium">18 standard fields</span>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-gray-100 flex items-center justify-end space-x-3">
+            <button id="btn-cancel-export-modal" class="px-4 py-2.5 rounded-xl border border-[#D1D5DB] text-xs font-semibold text-gray-700 hover:bg-gray-50">
+              Cancel
+            </button>
+            <button id="btn-confirm-export-modal" class="px-5 py-2.5 rounded-xl bg-[#163326] text-white text-xs font-semibold hover:bg-[#0E2219] shadow-sm flex items-center space-x-2">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Download Export CSV</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    `;
+
+    if (window.lucide) window.lucide.createIcons();
+
+    document.getElementById('btn-cancel-export-modal')?.addEventListener('click', closeModal);
+    document.getElementById('btn-confirm-export-modal')?.addEventListener('click', () => {
+      exportToCSV(targetOrders);
+    });
+  }
+
   window.TryonModals = {
     close: closeModal,
     openSearchModal,
@@ -1161,6 +1682,8 @@
     openExpenseModal,
     openUserModal,
     openDeleteConfirm,
-    openResetDemoConfirm
+    openResetDemoConfirm,
+    openCsvImportModal,
+    openExportModal
   };
 })();

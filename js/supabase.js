@@ -122,14 +122,19 @@
         const state = store.getState();
         state.orders = ords.map((o) => ({
           id: o.id,
-          customer: o.customer,
-          items: o.items,
+          customer: o.customer || {},
+          items: Array.isArray(o.items) ? o.items : [],
           subtotal: parseFloat(o.subtotal) || 0,
           discount: parseFloat(o.discount) || 0,
+          shippingFee: parseFloat(o.shipping_fee) || 0,
+          tax: parseFloat(o.tax) || 0,
           total: parseFloat(o.total) || 0,
-          status: o.status,
-          date: o.date,
-          createdAt: o.created_at
+          paymentMethod: o.payment_method || (o.customer && o.customer.paymentMethod) || 'Credit Card',
+          paymentStatus: o.payment_status || 'Pending',
+          status: o.status || 'Pending',
+          date: o.date || new Date().toISOString().split('T')[0],
+          history: Array.isArray(o.history) ? o.history : [],
+          createdAt: o.created_at || new Date().toISOString()
         }));
       }
 
@@ -223,13 +228,43 @@
         items: order.items,
         subtotal: order.subtotal,
         discount: order.discount,
+        shipping_fee: order.shippingFee || 0,
+        tax: order.tax || 0,
         total: order.total,
-        status: order.status,
+        payment_method: order.paymentMethod || 'Credit Card',
+        payment_status: order.paymentStatus || 'Pending',
+        status: order.status || 'Pending',
         date: order.date,
+        history: order.history || [],
         created_at: order.createdAt
       });
     } catch (e) {
       console.warn('Supabase order push notice:', e);
+    }
+  }
+
+  async function pushOrdersBulk(ordersList) {
+    if (!client || !Array.isArray(ordersList) || ordersList.length === 0) return;
+    try {
+      const records = ordersList.map((order) => ({
+        id: order.id,
+        customer: order.customer,
+        items: order.items,
+        subtotal: order.subtotal,
+        discount: order.discount,
+        shipping_fee: order.shippingFee || 0,
+        tax: order.tax || 0,
+        total: order.total,
+        payment_method: order.paymentMethod || 'Credit Card',
+        payment_status: order.paymentStatus || 'Pending',
+        status: order.status || 'Pending',
+        date: order.date,
+        history: order.history || [],
+        created_at: order.createdAt
+      }));
+      await client.from('orders').upsert(records);
+    } catch (e) {
+      console.warn('Supabase bulk order push notice:', e);
     }
   }
 
@@ -339,6 +374,7 @@
     pushProduct,
     deleteProduct,
     pushOrder,
+    pushOrdersBulk,
     deleteOrder,
     pushCustomer,
     deleteCustomer,
