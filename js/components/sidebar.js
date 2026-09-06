@@ -152,6 +152,11 @@
                 <span class="w-1.5 h-1.5 rounded-full ${activeRoute === 'reports:profit-loss' ? 'bg-[#163326]' : 'bg-[#CBD5E1]'}"></span>
                 <span>Profit & Loss</span>
               </a>
+
+              <button id="btn-sidebar-import-data" class="w-full text-left flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-[#163326] hover:bg-[#E4EFE7] transition-colors">
+                <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-[#163326]"></i>
+                <span class="font-semibold">Import Data</span>
+              </button>
             </div>
           </div>
           `
@@ -215,6 +220,14 @@
           icon.setAttribute('data-lucide', reportsExpanded ? 'chevron-down' : 'chevron-right');
           if (window.lucide) window.lucide.createIcons();
         }
+      });
+    }
+
+    const importDataBtn = document.getElementById('btn-sidebar-import-data');
+    if (importDataBtn) {
+      importDataBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.TryonImportModal?.open('import');
       });
     }
 

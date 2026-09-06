@@ -94,6 +94,7 @@
       orders: [],
       customers: [],
       expenses: [],
+      importHistory: [],
       users: JSON.parse(JSON.stringify(DEFAULT_USERS)),
       notifications: [],
       settings: {
@@ -133,6 +134,7 @@
         if (!Array.isArray(parsed.orders)) parsed.orders = [];
         if (!Array.isArray(parsed.customers)) parsed.customers = [];
         if (!Array.isArray(parsed.expenses)) parsed.expenses = [];
+        if (!Array.isArray(parsed.importHistory)) parsed.importHistory = [];
         if (!Array.isArray(parsed.users) || parsed.users.length === 0) parsed.users = JSON.parse(JSON.stringify(DEFAULT_USERS));
         if (!Array.isArray(parsed.notifications)) parsed.notifications = [];
         if (!parsed.settings) parsed.settings = getInitialState().settings;
@@ -587,6 +589,212 @@
     return state.settings[section];
   }
 
+  // --- IMPORT BATCH DATA & HISTORY ---
+  function importBatchData({ fileName, records, totalRows, failedCount = 0 }) {
+    if (!Array.isArray(records) || records.length === 0) {
+      throw new Error('No valid records to import.');
+    }
+
+    const batchId = 'IMP-' + Date.now().toString(36).toUpperCase();
+    const currentUser = getCurrentUser();
+    const importedBy = currentUser ? currentUser.name : 'Admin';
+
+    const createdOrderIds = [];
+    const createdExpenseIds = [];
+    let totalRevenue = 0;
+
+    records.forEach((row, idx) => {
+      // 1. Customer: find or create
+      const custName = (row.customerName || 'Walk-in Customer').trim();
+      const custEmail = (row.customerEmail || `${custName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'cust'}@example.com`).trim();
+      let customer = state.customers.find((c) => c.name.toLowerCase() === custName.toLowerCase() || c.email.toLowerCase() === custEmail.toLowerCase());
+      if (!customer) {
+        customer = {
+          id: 'CUS-' + (100 + state.customers.length + 1),
+          name: custName,
+          email: custEmail,
+          phone: row.customerPhone || '',
+          address: row.customerAddress || 'Direct Purchase',
+          status: 'Active',
+          ordersCount: 0,
+          totalSpent: 0,
+          avatar: (custName.charAt(0) || 'C').toUpperCase(),
+          createdAt: new Date().toISOString()
+        };
+        state.customers.push(customer);
+        if (window.TryonSupabase) window.TryonSupabase.pushCustomer(customer);
+      }
+
+      // 2. Product: find or create
+      const prodName = (row.productName || 'Imported Merchandise').trim();
+      const prodCategory = row.category || 'Tees';
+      const qty = parseInt(row.quantity, 10) || 1;
+      const unitPrice = parseFloat(row.price) > 0 ? parseFloat(row.price) : ((parseFloat(row.total) / qty) || 49);
+
+      let product = state.products.find((p) => p.name.toLowerCase() === prodName.toLowerCase());
+      if (!product) {
+        product = {
+          id: 'PRD-' + (1000 + state.products.length + 1),
+          name: prodName,
+          description: 'Imported via ' + fileName,
+          category: prodCategory,
+          sku: 'SKU-' + Math.floor(100000 + Math.random() * 900000),
+          price: unitPrice,
+          salePrice: null,
+          stock: Math.max(25, qty * 2),
+          status: 'In Stock',
+          image: APPAREL_IMAGE_PRESETS[idx % APPAREL_IMAGE_PRESETS.length].url,
+          brand: 'TRYON',
+          size: 'M',
+          color: 'Default',
+          tags: ['Imported'],
+          createdAt: new Date().toISOString()
+        };
+        state.products.push(product);
+        if (window.TryonSupabase) window.TryonSupabase.pushProduct(product);
+      }
+
+      // 3. Order
+      const lineTotal = parseFloat(row.total) > 0 ? parseFloat(row.total) : (unitPrice * qty);
+      totalRevenue += lineTotal;
+
+      let orderId = (row.orderId || '').trim();
+      if (!orderId || state.orders.some((o) => o.id === orderId)) {
+        orderId = 'ORD-' + (1000 + state.orders.length + 1);
+      }
+
+      const orderDate = row.date && !isNaN(Date.parse(row.date)) 
+        ? new Date(row.date).toISOString().split('T')[0] 
+        : new Date().toISOString().split('T')[0];
+
+      const newOrder = {
+        id: orderId,
+        batchId: batchId,
+        customer: {
+          id: customer.id,
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone || '—',
+          address: customer.address || '—'
+        },
+        items: [
+          {
+            productId: product.id,
+            name: product.name,
+            category: product.category,
+            image: product.image,
+            price: unitPrice,
+            quantity: qty,
+            total: lineTotal
+          }
+        ],
+        subtotal: lineTotal,
+        discount: 0,
+        total: lineTotal,
+        status: row.status || 'Delivered',
+        date: orderDate,
+        createdAt: new Date(orderDate).toISOString()
+      };
+
+      state.orders.push(newOrder);
+      createdOrderIds.push(orderId);
+
+      // Customer metrics
+      customer.ordersCount = (customer.ordersCount || 0) + 1;
+      customer.totalSpent = (customer.totalSpent || 0) + lineTotal;
+
+      if (window.TryonSupabase) {
+        window.TryonSupabase.pushOrder(newOrder);
+        window.TryonSupabase.pushCustomer(customer);
+      }
+
+      // 4. Optional Cost / Expense for P&L
+      if (row.cost !== undefined && parseFloat(row.cost) > 0) {
+        const costAmount = parseFloat(row.cost);
+        const exp = {
+          id: 'EXP-' + (100 + state.expenses.length + 1),
+          batchId: batchId,
+          name: `COGS: ${prodName} (${orderId})`,
+          category: 'Cost of Goods Sold',
+          amount: costAmount,
+          date: orderDate,
+          description: `Product cost imported from ${fileName}`,
+          createdAt: new Date().toISOString()
+        };
+        state.expenses.push(exp);
+        createdExpenseIds.push(exp.id);
+        if (window.TryonSupabase) window.TryonSupabase.pushExpense(exp);
+      }
+    });
+
+    const historyEntry = {
+      id: batchId,
+      fileName: fileName || 'data_import.csv',
+      date: new Date().toISOString(),
+      formattedDate: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      totalRecords: totalRows || records.length,
+      successCount: createdOrderIds.length,
+      failedCount: failedCount,
+      importedBy: importedBy,
+      status: failedCount > 0 ? 'Completed with Warnings' : 'Completed',
+      createdOrderIds: createdOrderIds,
+      createdExpenseIds: createdExpenseIds,
+      totalRevenue: totalRevenue
+    };
+
+    if (!Array.isArray(state.importHistory)) state.importHistory = [];
+    state.importHistory.unshift(historyEntry);
+
+    pushNotification(
+      'Data Import Completed',
+      `Imported ${createdOrderIds.length} orders from "${fileName}" ($${totalRevenue.toFixed(2)})`,
+      'success'
+    );
+
+    notify('import:complete', historyEntry);
+    return historyEntry;
+  }
+
+  function revertImportBatch(batchId) {
+    const historyItem = (state.importHistory || []).find((h) => h.id === batchId);
+    if (!historyItem) throw new Error('Import batch not found.');
+    if (historyItem.status === 'Reverted') throw new Error('This import batch has already been reverted.');
+
+    const orderIdsToRemove = new Set(historyItem.createdOrderIds || []);
+    const expenseIdsToRemove = new Set(historyItem.createdExpenseIds || []);
+
+    // 1. Remove orders and deduct customer spend
+    const remainingOrders = [];
+    for (const o of state.orders) {
+      if (orderIdsToRemove.has(o.id) || o.batchId === batchId) {
+        const cust = state.customers.find((c) => c.id === o.customer.id);
+        if (cust) {
+          cust.ordersCount = Math.max(0, (cust.ordersCount || 1) - 1);
+          cust.totalSpent = Math.max(0, (cust.totalSpent || o.total) - o.total);
+          if (window.TryonSupabase) window.TryonSupabase.pushCustomer(cust);
+        }
+        if (window.TryonSupabase) window.TryonSupabase.deleteOrder(o.id);
+      } else {
+        remainingOrders.push(o);
+      }
+    }
+    state.orders = remainingOrders;
+
+    // 2. Remove linked expenses
+    state.expenses = state.expenses.filter((e) => {
+      if (expenseIdsToRemove.has(e.id) || e.batchId === batchId) {
+        if (window.TryonSupabase) window.TryonSupabase.deleteExpense(e.id);
+        return false;
+      }
+      return true;
+    });
+
+    historyItem.status = 'Reverted';
+    pushNotification('Import Reverted', `Reverted batch ${batchId} (${orderIdsToRemove.size} orders removed)`, 'warning');
+    notify('import:revert', batchId);
+    return true;
+  }
+
   // --- RESET DEMO DATA ---
   function resetDemoData() {
     const currentSession = getCurrentUser();
@@ -652,7 +860,9 @@
     // Users
     addUser,
     updateUser,
-    deleteUser,
+    // Import & Batch
+    importBatchData,
+    revertImportBatch,
     // Settings & Reset
     updateSettings,
     resetDemoData,

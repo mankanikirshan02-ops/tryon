@@ -75,6 +75,11 @@
               <option>Direct Retail</option>
             </select>
 
+            <button id="btn-open-import-data" class="px-3.5 py-2 rounded-xl bg-white border border-[#163326] text-[#163326] text-xs font-semibold hover:bg-[#F4F6F5] transition-all flex items-center space-x-1.5 shadow-sm">
+              <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+              <span>Import Data</span>
+            </button>
+
             <button id="btn-export-sales-csv" class="px-3.5 py-2 rounded-xl bg-[#163326] text-white text-xs font-semibold hover:bg-[#0E2219] transition-all flex items-center space-x-1.5 shadow-sm">
               <i data-lucide="download" class="w-3.5 h-3.5"></i>
               <span>Export</span>
@@ -217,6 +222,10 @@
 
     document.getElementById('btn-export-sales-csv')?.addEventListener('click', () => {
       exportSalesCSV();
+    });
+
+    document.getElementById('btn-open-import-data')?.addEventListener('click', () => {
+      window.TryonImportModal?.open('import');
     });
 
     renderChart();
