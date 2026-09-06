@@ -52,8 +52,8 @@
       <div class="space-y-6">
         
         <!-- Mid Summer Collection Banner -->
-        <div class="tryon-card overflow-hidden relative border border-[#E2DDD5] shadow-sm rounded-2xl">
-          <img src="mid_summer_banner.png" alt="Mid Summer Collection 26 - Toes to Nose" class="w-full h-auto object-cover max-h-56 sm:max-h-64 rounded-2xl" />
+        <div class="tryon-card overflow-hidden relative border border-[#E2DDD5] shadow-sm rounded-2xl bg-[#2b2414]">
+          <img src="mid_summer_banner.png" alt="Mid Summer Collection 26" class="w-full h-auto rounded-2xl block" />
         </div>
 
         <!-- KPI Cards Grid (4 Cards) -->
