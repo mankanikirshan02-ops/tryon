@@ -51,9 +51,9 @@
     return `
       <div class="space-y-6">
         
-        <!-- Mid Summer Eastern Collection Banner -->
-        <div class="tryon-card overflow-hidden relative border border-[#EAECEE] shadow-sm rounded-2xl bg-[#F8F9FA]">
-          <img src="mid_summer_banner.png" alt="Mid Summer Eastern Collection" class="w-full h-auto rounded-2xl block" />
+        <!-- TRYON Mid Summer Collection Banner -->
+        <div class="tryon-card overflow-hidden relative border border-[#EAECEE] shadow-sm rounded-2xl">
+          <img src="mid_summer_banner.png" alt="TRYON Mid Summer Collection '26" class="w-full h-auto rounded-2xl block" />
         </div>
 
         <!-- KPI Cards Grid (4 Cards) -->
