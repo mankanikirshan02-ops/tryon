@@ -41,6 +41,22 @@
 
     const currentUser = window.TryonStore.getCurrentUser();
 
+    // If account has been deactivated, immediately log out and redirect to login
+    if (currentUser && currentUser.status === 'Inactive' && primaryRoute !== 'login') {
+      window.TryonStore.logout();
+      window.location.hash = '#login';
+      renderLoginPage();
+      setTimeout(() => {
+        const alertDiv = document.getElementById('login-error-alert');
+        const alertText = document.getElementById('login-error-text');
+        if (alertDiv && alertText) {
+          alertText.textContent = 'This user account is currently deactivated. Contact Admin.';
+          alertDiv.classList.remove('hidden');
+        }
+      }, 50);
+      return;
+    }
+
     // If not authenticated and not on login page, force login
     if (!currentUser && primaryRoute !== 'login') {
       window.location.hash = '#login';
@@ -96,6 +112,13 @@
         window.TryonPageCustomers.initEvents();
         break;
 
+      case 'users':
+        if (window.TryonPageUsers) {
+          mainContainer.innerHTML = window.TryonPageUsers.render(subRoute || 'all');
+          window.TryonPageUsers.initEvents();
+        }
+        break;
+
       case 'reports':
         if (subRoute === 'revenue') {
           mainContainer.innerHTML = window.TryonPageRevenue.render();
@@ -131,12 +154,19 @@
     if (role === 'Admin') return true;
 
     if (role === 'Manager') {
-      if (primaryRoute === 'settings' && subRoute === 'users') return false;
+      // Manager can view dashboard, products, orders, customers, users (view-only), reports, settings:profile
+      if (primaryRoute === 'settings' && ['users', 'security', 'business'].includes(subRoute)) return false;
       return true;
     }
 
     if (role === 'User') {
-      // Users can only access dashboard, products, orders, customers
+      // Users can only access dashboard, products, orders, customers, reports:sales, settings:profile
+      if (primaryRoute === 'reports') {
+        return !subRoute || subRoute === 'sales';
+      }
+      if (primaryRoute === 'settings') {
+        return !subRoute || subRoute === 'profile';
+      }
       const allowed = ['dashboard', 'products', 'orders', 'customers'];
       return allowed.includes(primaryRoute);
     }

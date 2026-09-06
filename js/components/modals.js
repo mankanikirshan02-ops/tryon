@@ -99,16 +99,19 @@
         if (res.products.length > 0) {
           html += `<div><h5 class="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8] mb-2">Products (${res.products.length})</h5><div class="space-y-1">`;
           res.products.forEach((p) => {
+            const initials = (p.id.split('-')[1] || p.name.slice(0, 2)).toUpperCase();
             html += `
               <div class="search-item p-2 rounded-xl hover:bg-[#F3F6F4] flex items-center justify-between cursor-pointer" onclick="window.location.hash='#products'; window.TryonModals.close();">
                 <div class="flex items-center space-x-3">
-                  <img src="${p.image}" class="w-8 h-8 rounded-lg object-cover" />
+                  <div class="w-8 h-8 rounded-lg bg-[#E4EFE7] border border-[#CEEAD6] text-[#163326] flex items-center justify-center font-serif italic text-xs font-bold shrink-0">
+                    ${initials}
+                  </div>
                   <div>
                     <p class="text-xs font-semibold text-[#111827]">${p.name}</p>
-                    <p class="text-[11px] text-[#64748B]">${p.category} • SKU: ${p.sku}</p>
+                    <p class="text-[11px] text-[#64748B]">${p.category} • ID: ${p.id}</p>
                   </div>
                 </div>
-                <span class="text-xs font-bold text-[#163326]">$${p.price.toFixed(2)}</span>
+                <span class="text-xs font-bold text-[#163326] font-mono">Rs. ${p.price.toLocaleString()}</span>
               </div>
             `;
           });
@@ -972,6 +975,12 @@
           </div>
 
           <form id="user-modal-form" class="p-6 space-y-4">
+            <!-- Modal Error Container -->
+            <div id="user-form-error" class="hidden p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 flex items-center space-x-2">
+              <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+              <span id="user-form-error-text"></span>
+            </div>
+
             <div>
               <label class="block text-xs font-semibold text-[#374151] mb-1">Full Name *</label>
               <input type="text" id="usr-name" required value="${user ? user.name : ''}" placeholder="e.g. Alex Morgan" class="w-full text-xs rounded-xl border border-[#D1D5DB] px-3.5 py-2.5 outline-none focus:border-[#163326]" />
@@ -1032,19 +1041,31 @@
       const password = document.getElementById('usr-password').value;
       const role = document.getElementById('usr-role').value;
       const status = document.getElementById('usr-status').value;
+      const errorBox = document.getElementById('user-form-error');
+      const errorText = document.getElementById('user-form-error-text');
 
       if (!name || !email) return;
 
-      if (isEdit) {
-        const updates = { name, email, role, status };
-        if (password) updates.password = password;
-        store.updateUser(userId, updates);
-        window.TryonApp.showToast(`User "${name}" updated.`, 'success');
-      } else {
-        store.addUser({ name, email, password, role, status });
-        window.TryonApp.showToast(`User "${name}" (${role}) created.`, 'success');
+      try {
+        if (isEdit) {
+          const updates = { name, email, role, status };
+          if (password) updates.password = password;
+          store.updateUser(userId, updates);
+          window.TryonApp.showToast(`User "${name}" updated.`, 'success');
+        } else {
+          store.addUser({ name, email, password, role, status });
+          window.TryonApp.showToast(`User "${name}" (${role}) created.`, 'success');
+        }
+        closeModal();
+        window.TryonApp.renderRoute();
+      } catch (err) {
+        if (errorBox && errorText) {
+          errorText.textContent = err.message;
+          errorBox.classList.remove('hidden');
+          if (window.lucide) window.lucide.createIcons();
+        }
+        window.TryonApp.showToast(err.message, 'error');
       }
-      closeModal();
     });
   }
 

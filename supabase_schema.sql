@@ -80,6 +80,16 @@ CREATE TABLE IF NOT EXISTS public.settings (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 7. AUDIT LOGS TABLE
+CREATE TABLE IF NOT EXISTS public.audit_logs (
+    id TEXT PRIMARY KEY,
+    action TEXT NOT NULL,
+    performed_by TEXT NOT NULL,
+    target_user TEXT,
+    details TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ==========================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- Enable read & write access for anon & authenticated users
@@ -91,6 +101,7 @@ ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.expenses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- Allow anon full access for the demo prototype
 DROP POLICY IF EXISTS "Public access products" ON public.products;
@@ -110,3 +121,6 @@ CREATE POLICY "Public access users" ON public.users FOR ALL USING (true) WITH CH
 
 DROP POLICY IF EXISTS "Public access settings" ON public.settings;
 CREATE POLICY "Public access settings" ON public.settings FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access audit_logs" ON public.audit_logs;
+CREATE POLICY "Public access audit_logs" ON public.audit_logs FOR ALL USING (true) WITH CHECK (true);

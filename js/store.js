@@ -87,15 +87,180 @@
     }
   ];
 
-  // Initial Empty State (Zero business data as required)
+  // Centralized Clothing Brand Catalog Products (NO IMAGES, pure luxury typography/information design)
+  const CATALOG_PRODUCTS = [
+    {
+      id: 'CL-TEE-001',
+      name: 'Essential Oversized Tee',
+      category: 'T-Shirts',
+      price: 2490,
+      positioning: 'Everyday / Basic',
+      tier: 'ENTRY',
+      badge: 'ESSENTIAL',
+      colors: ['Black', 'White', 'Grey'],
+      sizes: ['S', 'M', 'L', 'XL'],
+      description: 'A clean oversized everyday t-shirt designed with a relaxed silhouette and minimal aesthetic.',
+      stock: 65,
+      status: 'In Stock',
+      sku: 'CL-TEE-001',
+      createdAt: '2026-01-10'
+    },
+    {
+      id: 'CL-SHR-002',
+      name: 'Premium Relaxed Shirt',
+      category: 'Shirts',
+      price: 3990,
+      positioning: 'Smart Casual',
+      tier: 'MID-RANGE',
+      badge: 'NEW',
+      colors: ['White', 'Black', 'Beige'],
+      sizes: ['S', 'M', 'L', 'XL'],
+      description: 'A premium relaxed-fit shirt designed for a clean and effortless smart-casual look.',
+      stock: 42,
+      status: 'In Stock',
+      sku: 'CL-SHR-002',
+      createdAt: '2026-01-11'
+    },
+    {
+      id: 'CL-PNT-003',
+      name: 'Urban Cargo Pants',
+      category: 'Pants',
+      price: 4490,
+      positioning: 'Streetwear',
+      tier: 'MID-RANGE',
+      badge: 'STREETWEAR',
+      colors: ['Black', 'Olive', 'Beige'],
+      sizes: ['28', '30', '32', '34', '36'],
+      description: 'Modern cargo pants with a relaxed urban silhouette, designed for everyday streetwear styling.',
+      stock: 38,
+      status: 'In Stock',
+      sku: 'CL-PNT-003',
+      createdAt: '2026-01-12'
+    },
+    {
+      id: 'CL-JKT-004',
+      name: 'Classic Denim Jacket',
+      category: 'Jackets',
+      price: 5990,
+      positioning: 'Premium',
+      tier: 'PREMIUM',
+      badge: 'PREMIUM',
+      colors: ['Blue', 'Black'],
+      sizes: ['S', 'M', 'L', 'XL'],
+      description: 'A timeless denim jacket combining classic structure with a modern everyday fit.',
+      stock: 24,
+      status: 'In Stock',
+      sku: 'CL-JKT-004',
+      createdAt: '2026-01-13'
+    },
+    {
+      id: 'CL-HOD-005',
+      name: 'Signature Hoodie',
+      category: 'Hoodies',
+      price: 4490,
+      positioning: 'Winter / Streetwear',
+      tier: 'MID-RANGE',
+      badge: 'STREETWEAR',
+      colors: ['Black', 'Grey', 'Cream'],
+      sizes: ['S', 'M', 'L', 'XL'],
+      description: 'A comfortable signature hoodie with a clean silhouette, designed for everyday streetwear.',
+      stock: 50,
+      status: 'In Stock',
+      sku: 'CL-HOD-005',
+      createdAt: '2026-01-14'
+    },
+    {
+      id: 'CL-DNM-006',
+      name: 'Straight Fit Denim',
+      category: 'Jeans',
+      price: 4990,
+      positioning: 'Everyday',
+      tier: 'PREMIUM',
+      badge: 'ESSENTIAL',
+      colors: ['Dark Blue', 'Light Blue', 'Black'],
+      sizes: ['28', '30', '32', '34', '36'],
+      description: 'A versatile straight-fit denim designed to provide a timeless everyday look.',
+      stock: 30,
+      status: 'In Stock',
+      sku: 'CL-DNM-006',
+      createdAt: '2026-01-15'
+    },
+    {
+      id: 'CL-POL-007',
+      name: 'Minimal Polo',
+      category: 'Polos',
+      price: 3290,
+      positioning: 'Smart Casual',
+      tier: 'MID-RANGE',
+      badge: null,
+      colors: ['Black', 'White', 'Navy'],
+      sizes: ['S', 'M', 'L', 'XL'],
+      description: 'A minimal polo with a refined silhouette, perfect for casual and smart-casual outfits.',
+      stock: 40,
+      status: 'In Stock',
+      sku: 'CL-POL-007',
+      createdAt: '2026-01-16'
+    },
+    {
+      id: 'CL-SHR-008',
+      name: 'Linen Summer Shirt',
+      category: 'Summer',
+      price: 3490,
+      positioning: 'Seasonal',
+      tier: 'MID-RANGE',
+      badge: 'SEASONAL',
+      colors: ['White', 'Beige', 'Sky Blue'],
+      sizes: ['S', 'M', 'L', 'XL'],
+      description: 'A lightweight linen-inspired summer shirt designed for a relaxed and breathable seasonal look.',
+      stock: 35,
+      status: 'In Stock',
+      sku: 'CL-SHR-008',
+      createdAt: '2026-01-17'
+    }
+  ];
+
+  // Initial Demo Audit Logs
+  const DEFAULT_AUDIT_LOGS = [
+    {
+      id: 'log-1',
+      action: 'User created',
+      performedBy: 'Tryon Admin (Admin)',
+      targetUser: 'Store Staff User (user@tryon.demo)',
+      details: 'Assigned User role with Active status',
+      timestamp: '2026-01-03T10:30:00.000Z',
+      formattedDate: '2026-01-03 10:30'
+    },
+    {
+      id: 'log-2',
+      action: 'Role changed',
+      performedBy: 'Tryon Admin (Admin)',
+      targetUser: 'Operations Manager (manager@tryon.demo)',
+      details: 'Assigned role Manager',
+      timestamp: '2026-01-02T14:15:00.000Z',
+      formattedDate: '2026-01-02 14:15'
+    },
+    {
+      id: 'log-3',
+      action: 'User created',
+      performedBy: 'System',
+      targetUser: 'Tryon Admin (admin@tryon.demo)',
+      details: 'Primary Administrator account provisioned',
+      timestamp: '2026-01-01T09:00:00.000Z',
+      formattedDate: '2026-01-01 09:00'
+    }
+  ];
+
+  // Initial State with centralized catalog & cart
   function getInitialState() {
     return {
-      products: [],
+      products: JSON.parse(JSON.stringify(CATALOG_PRODUCTS)),
+      cart: [],
       orders: [],
       customers: [],
       expenses: [],
       importHistory: [],
       users: JSON.parse(JSON.stringify(DEFAULT_USERS)),
+      auditLogs: JSON.parse(JSON.stringify(DEFAULT_AUDIT_LOGS)),
       notifications: [],
       settings: {
         profile: {
@@ -110,8 +275,8 @@
           email: 'store@tryon.fashion',
           phone: '+1 (800) 879-6632',
           address: '742 Evergreen Terrace, New York, NY 10001',
-          currency: 'USD',
-          currencySymbol: '$',
+          currency: 'PKR',
+          currencySymbol: 'Rs.',
           info: 'Contemporary minimalist apparel and modern wardrobe essentials.'
         },
         notifications: {
@@ -130,12 +295,16 @@
       if (raw) {
         const parsed = JSON.parse(raw);
         // Ensure all required collections exist
-        if (!Array.isArray(parsed.products)) parsed.products = [];
+        if (!Array.isArray(parsed.products) || parsed.products.length === 0 || !parsed.products.some((p) => p.id && p.id.startsWith('CL-'))) {
+          parsed.products = JSON.parse(JSON.stringify(CATALOG_PRODUCTS));
+        }
+        if (!Array.isArray(parsed.cart)) parsed.cart = [];
         if (!Array.isArray(parsed.orders)) parsed.orders = [];
         if (!Array.isArray(parsed.customers)) parsed.customers = [];
         if (!Array.isArray(parsed.expenses)) parsed.expenses = [];
         if (!Array.isArray(parsed.importHistory)) parsed.importHistory = [];
         if (!Array.isArray(parsed.users) || parsed.users.length === 0) parsed.users = JSON.parse(JSON.stringify(DEFAULT_USERS));
+        if (!Array.isArray(parsed.auditLogs)) parsed.auditLogs = JSON.parse(JSON.stringify(DEFAULT_AUDIT_LOGS));
         if (!Array.isArray(parsed.notifications)) parsed.notifications = [];
         if (!parsed.settings) parsed.settings = getInitialState().settings;
         return parsed;
@@ -195,9 +364,23 @@
   function getCurrentUser() {
     try {
       const raw = localStorage.getItem(SESSION_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const session = JSON.parse(raw);
+        // Sync with live state to ensure active status & latest role
+        const live = state.users.find((u) => u.id === session.id || u.email.toLowerCase() === session.email.toLowerCase());
+        if (live) {
+          return {
+            id: live.id,
+            name: live.name,
+            email: live.email,
+            role: live.role,
+            status: live.status,
+            avatar: live.avatar || live.name.charAt(0).toUpperCase()
+          };
+        }
+        return session;
+      }
     } catch (e) {}
-    // Default to Admin for seamless demo testing if desired, or null
     return null;
   }
 
@@ -226,6 +409,7 @@
       name: user.name,
       email: user.email,
       role: user.role,
+      status: user.status,
       avatar: user.avatar || user.name.charAt(0).toUpperCase()
     };
     setCurrentUser(sessionUser);
@@ -239,19 +423,24 @@
 
   // Role Permissions Checker
   function canAccess(page, userRole) {
-    const role = userRole || (getCurrentUser() ? getCurrentUser().role : null);
+    const currentUser = getCurrentUser();
+    const role = userRole || (currentUser ? currentUser.role : null);
     if (!role) return false;
+
+    // Deactivated account has no access
+    if (currentUser && currentUser.status === 'Inactive') return false;
+
     if (role === 'Admin') return true;
 
     // Manager permissions
     if (role === 'Manager') {
-      const restrictedForManager = ['settings:users', 'system:reset'];
+      const restrictedForManager = ['settings:security', 'settings:business', 'settings:users', 'system:reset'];
       return !restrictedForManager.includes(page);
     }
 
     // User permissions (simplified day-to-day access only)
     if (role === 'User') {
-      const allowedForUser = ['dashboard', 'products', 'orders', 'customers'];
+      const allowedForUser = ['dashboard', 'products', 'orders', 'customers', 'reports:sales', 'settings:profile'];
       return allowedForUser.includes(page);
     }
 
@@ -333,6 +522,92 @@
     if (window.TryonSupabase) window.TryonSupabase.deleteProduct(id);
     notify('product:delete', removed);
     return true;
+  }
+
+  // --- CART MANAGEMENT ---
+  function getCart() {
+    if (!state.cart) state.cart = [];
+    return state.cart;
+  }
+
+  function addToCart(productId, size, color, quantity = 1) {
+    if (!state.cart) state.cart = [];
+    const product = state.products.find((p) => p.id === productId);
+    if (!product) {
+      throw new Error('Product not found in catalog.');
+    }
+
+    const selSize = size || (product.sizes && product.sizes[0]) || 'M';
+    const selColor = color || (product.colors && product.colors[0]) || 'Default';
+    const qty = Math.max(1, parseInt(quantity, 10) || 1);
+
+    const existingIndex = state.cart.findIndex(
+      (item) => item.productId === productId && item.size === selSize && item.color === selColor
+    );
+
+    if (existingIndex > -1) {
+      state.cart[existingIndex].quantity += qty;
+    } else {
+      const cartItem = {
+        id: 'CART-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+        productId: product.id,
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        size: selSize,
+        color: selColor,
+        quantity: qty,
+        addedAt: new Date().toISOString()
+      };
+      state.cart.push(cartItem);
+    }
+
+    pushNotification('Added to Bag', `Added "${product.name}" (${selSize} • ${selColor}) to your bag.`, 'success');
+    notify('cart:update', state.cart);
+    return state.cart;
+  }
+
+  function updateCartQuantity(cartItemId, quantity) {
+    if (!state.cart) return [];
+    const qty = parseInt(quantity, 10);
+    if (qty <= 0) {
+      return removeFromCart(cartItemId);
+    }
+    const item = state.cart.find((i) => i.id === cartItemId);
+    if (item) {
+      item.quantity = qty;
+      notify('cart:update', state.cart);
+    }
+    return state.cart;
+  }
+
+  function removeFromCart(cartItemId) {
+    if (!state.cart) return [];
+    const idx = state.cart.findIndex((i) => i.id === cartItemId);
+    if (idx > -1) {
+      const removed = state.cart.splice(idx, 1)[0];
+      pushNotification('Removed from Bag', `Removed "${removed.name}" from your bag.`, 'info');
+      notify('cart:update', state.cart);
+    }
+    return state.cart;
+  }
+
+  function clearCart() {
+    state.cart = [];
+    notify('cart:update', state.cart);
+    return state.cart;
+  }
+
+  function getCartTotals() {
+    const items = state.cart || [];
+    const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const totalCount = items.reduce((acc, item) => acc + item.quantity, 0);
+    return {
+      items,
+      itemCount: totalCount,
+      subtotal,
+      currency: 'Rs.'
+    };
   }
 
   // --- CUSTOMERS ---
@@ -534,45 +809,263 @@
     return true;
   }
 
-  // --- USERS & ROLES (Admin Only) ---
+  // --- ACTIVITY & AUDIT LOGS ---
+  function getAuditLogs() {
+    return state.auditLogs || [];
+  }
+
+  function addAuditLog(action, targetUser = '—', details = '') {
+    const currentUser = getCurrentUser();
+    const actor = currentUser ? `${currentUser.name} (${currentUser.role})` : 'System';
+    const now = new Date();
+    const entry = {
+      id: 'log-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+      action,
+      performedBy: actor,
+      targetUser,
+      details,
+      timestamp: now.toISOString(),
+      formattedDate: now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    if (!Array.isArray(state.auditLogs)) state.auditLogs = [];
+    state.auditLogs.unshift(entry);
+    if (state.auditLogs.length > 100) state.auditLogs.pop();
+    if (window.TryonSupabase && typeof window.TryonSupabase.pushAuditLog === 'function') {
+      window.TryonSupabase.pushAuditLog(entry);
+    }
+    notify('audit:log', entry);
+    return entry;
+  }
+
+  // --- USERS & ROLES (Admin Only with Full RBAC & Admin Protection) ---
   function addUser(data) {
+    const caller = getCurrentUser();
+    if (caller && caller.role !== 'Admin') {
+      throw new Error('Forbidden: Only Administrators can add new users.');
+    }
+
+    if (!data.name || !data.name.trim()) {
+      throw new Error('Full Name is required.');
+    }
+    const normalizedEmail = (data.email || '').trim().toLowerCase();
+    if (!normalizedEmail) {
+      throw new Error('Email Address is required.');
+    }
+
+    // Prevent duplicate users with the same email
+    const exists = state.users.some((u) => u.email.toLowerCase() === normalizedEmail);
+    if (exists) {
+      throw new Error(`A user with the email "${data.email.trim()}" already exists.`);
+    }
+
+    const assignedRole = data.role || 'User';
+    if (!['Admin', 'Manager', 'User'].includes(assignedRole)) {
+      throw new Error('Invalid role specified. Must be Admin, Manager, or User.');
+    }
+
+    const assignedStatus = data.status || 'Active';
+    if (!['Active', 'Inactive'].includes(assignedStatus)) {
+      throw new Error('Invalid status specified. Must be Active or Inactive.');
+    }
+
     const newUser = {
-      id: 'usr-' + (state.users.length + 1),
+      id: 'usr-' + (100 + state.users.length + 1),
       name: data.name.trim(),
       email: data.email.trim(),
       password: data.password || 'Demo@123',
-      role: data.role || 'User', // Admin | Manager | User
-      status: data.status || 'Active',
+      role: assignedRole,
+      status: assignedStatus,
       avatar: (data.name.trim().charAt(0) || 'U').toUpperCase(),
       createdAt: new Date().toISOString().split('T')[0]
     };
+
     state.users.push(newUser);
+    addAuditLog('User created', `${newUser.name} (${newUser.email})`, `Created as ${newUser.role} with status ${newUser.status}`);
     pushNotification('User Created', `Created ${newUser.role} account for "${newUser.name}"`, 'success');
+    if (window.TryonSupabase && typeof window.TryonSupabase.pushUser === 'function') {
+      window.TryonSupabase.pushUser(newUser);
+    }
     notify('user:add', newUser);
     return newUser;
   }
 
   function updateUser(id, updates) {
+    const caller = getCurrentUser();
+    if (caller && caller.role !== 'Admin') {
+      throw new Error('Forbidden: Only Administrators can modify user details.');
+    }
+
     const idx = state.users.findIndex((u) => u.id === id);
-    if (idx === -1) return null;
+    if (idx === -1) throw new Error('User not found.');
+
+    const existing = state.users[idx];
+
+    // Check duplicate email if changing email
+    if (updates.email) {
+      const newEmail = updates.email.trim().toLowerCase();
+      const conflict = state.users.some((u) => u.id !== id && u.email.toLowerCase() === newEmail);
+      if (conflict) {
+        throw new Error(`A user with the email "${updates.email.trim()}" already exists.`);
+      }
+    }
+
+    // Admin Protection: Ensure at least one active Admin remains
+    if (existing.role === 'Admin') {
+      const isDemoting = updates.role && updates.role !== 'Admin';
+      const isDeactivating = updates.status && updates.status !== 'Active';
+      if (isDemoting || isDeactivating) {
+        const otherActiveAdmins = state.users.filter(
+          (u) => u.id !== id && u.role === 'Admin' && u.status === 'Active'
+        );
+        if (otherActiveAdmins.length === 0) {
+          throw new Error('Action blocked: System requires at least one active Administrator account.');
+        }
+      }
+    }
+
+    // Audit logs for specific attribute modifications
+    if (updates.role && updates.role !== existing.role) {
+      addAuditLog('Role changed', `${existing.name} (${existing.email})`, `Role changed from ${existing.role} to ${updates.role}`);
+    }
+    if (updates.status && updates.status !== existing.status) {
+      addAuditLog(
+        updates.status === 'Active' ? 'User activated' : 'User deactivated',
+        `${existing.name} (${existing.email})`,
+        `Status changed from ${existing.status} to ${updates.status}`
+      );
+    }
+
     state.users[idx] = {
-      ...state.users[idx],
-      ...updates
+      ...existing,
+      ...updates,
+      name: updates.name ? updates.name.trim() : existing.name,
+      email: updates.email ? updates.email.trim() : existing.email
     };
+
     pushNotification('User Updated', `Updated profile for "${state.users[idx].name}"`, 'info');
+    if (window.TryonSupabase && typeof window.TryonSupabase.pushUser === 'function') {
+      window.TryonSupabase.pushUser(state.users[idx]);
+    }
     notify('user:update', state.users[idx]);
     return state.users[idx];
   }
 
+  function assignRoleByEmail(email, newRole) {
+    const caller = getCurrentUser();
+    if (caller && caller.role !== 'Admin') {
+      throw new Error('Forbidden: Only Administrators can assign or change user roles.');
+    }
+
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    if (!normalizedEmail) {
+      throw new Error('Please enter a valid email address.');
+    }
+
+    if (!['Admin', 'Manager', 'User'].includes(newRole)) {
+      throw new Error('Invalid role specified. Must be Admin, Manager, or User.');
+    }
+
+    const user = state.users.find((u) => u.email.toLowerCase() === normalizedEmail);
+    if (!user) {
+      throw new Error('User not found. Please add the user first.');
+    }
+
+    // Admin Protection: Prevent demoting the last active Admin
+    if (user.role === 'Admin' && newRole !== 'Admin') {
+      const otherActiveAdmins = state.users.filter(
+        (u) => u.id !== user.id && u.role === 'Admin' && u.status === 'Active'
+      );
+      if (otherActiveAdmins.length === 0) {
+        throw new Error('Cannot change role: System requires at least one active Admin account.');
+      }
+    }
+
+    if (user.role === newRole) {
+      return { success: true, user, unchanged: true, message: `User already has the ${newRole} role.` };
+    }
+
+    const oldRole = user.role;
+    user.role = newRole;
+
+    addAuditLog('Role changed', `${user.name} (${user.email})`, `Role changed from ${oldRole} to ${newRole}`);
+    pushNotification('Role Changed', `Assigned ${newRole} role to ${user.email}`, 'success');
+
+    if (window.TryonSupabase && typeof window.TryonSupabase.pushUser === 'function') {
+      window.TryonSupabase.pushUser(user);
+    }
+
+    notify('user:update', user);
+    return { success: true, user, oldRole, newRole };
+  }
+
+  function toggleUserStatus(id) {
+    const caller = getCurrentUser();
+    if (caller && caller.role !== 'Admin') {
+      throw new Error('Forbidden: Only Administrators can activate or deactivate accounts.');
+    }
+
+    const user = state.users.find((u) => u.id === id);
+    if (!user) throw new Error('User not found.');
+
+    const newStatus = user.status === 'Active' ? 'Inactive' : 'Active';
+
+    // Admin Protection: Cannot deactivate the last active Admin
+    if (user.role === 'Admin' && newStatus === 'Inactive') {
+      const otherActiveAdmins = state.users.filter(
+        (u) => u.id !== id && u.role === 'Admin' && u.status === 'Active'
+      );
+      if (otherActiveAdmins.length === 0) {
+        throw new Error('Action blocked: Cannot deactivate the last remaining active Administrator.');
+      }
+    }
+
+    user.status = newStatus;
+    const actionName = newStatus === 'Active' ? 'User activated' : 'User deactivated';
+    addAuditLog(actionName, `${user.name} (${user.email})`, `Account marked as ${newStatus}`);
+    pushNotification(actionName, `${user.name}'s account is now ${newStatus}`, newStatus === 'Active' ? 'success' : 'warning');
+
+    if (window.TryonSupabase && typeof window.TryonSupabase.pushUser === 'function') {
+      window.TryonSupabase.pushUser(user);
+    }
+
+    notify('user:update', user);
+    return user;
+  }
+
   function deleteUser(id) {
+    const caller = getCurrentUser();
+    if (caller && caller.role !== 'Admin') {
+      throw new Error('Forbidden: Only Administrators can delete user accounts.');
+    }
+
+    const user = state.users.find((u) => u.id === id);
+    if (!user) throw new Error('User not found.');
+
     // Prevent deleting the primary admin account
-    if (id === 'usr-1') {
+    if (id === 'usr-1' || user.email.toLowerCase() === 'admin@tryon.demo') {
       throw new Error('Primary Administrator account (admin@tryon.demo) cannot be deleted.');
     }
+
+    // Admin Protection: Cannot delete the last active Admin
+    if (user.role === 'Admin') {
+      const otherActiveAdmins = state.users.filter(
+        (u) => u.id !== id && u.role === 'Admin' && u.status === 'Active'
+      );
+      if (otherActiveAdmins.length === 0) {
+        throw new Error('Cannot delete the last remaining active Administrator account.');
+      }
+    }
+
     const idx = state.users.findIndex((u) => u.id === id);
-    if (idx === -1) return false;
     const removed = state.users.splice(idx, 1)[0];
+
+    addAuditLog('User deleted', `${removed.name} (${removed.email})`, `Deleted ${removed.role} account`);
     pushNotification('User Deleted', `Deleted user account "${removed.name}"`, 'warning');
+
+    if (window.TryonSupabase && typeof window.TryonSupabase.deleteUser === 'function') {
+      window.TryonSupabase.deleteUser(id);
+    }
+
     notify('user:delete', removed);
     return true;
   }
@@ -745,6 +1238,12 @@
     if (!Array.isArray(state.importHistory)) state.importHistory = [];
     state.importHistory.unshift(historyEntry);
 
+    addAuditLog(
+      'Data imported',
+      `Batch ${batchId}`,
+      `Imported ${createdOrderIds.length} orders from ${fileName || 'CSV/XLSX'} ($${totalRevenue.toFixed(2)})`
+    );
+
     pushNotification(
       'Data Import Completed',
       `Imported ${createdOrderIds.length} orders from "${fileName}" ($${totalRevenue.toFixed(2)})`,
@@ -790,20 +1289,196 @@
     });
 
     historyItem.status = 'Reverted';
+    addAuditLog('Import reverted', `Batch ${batchId}`, `Reverted ${orderIdsToRemove.size} imported orders`);
     pushNotification('Import Reverted', `Reverted batch ${batchId} (${orderIdsToRemove.size} orders removed)`, 'warning');
     notify('import:revert', batchId);
+    return true;
+  }
+
+  // --- PRODUCTS CSV IMPORT & EXPORT ---
+  function importProductsBatch(productsList) {
+    const caller = getCurrentUser();
+    if (caller && caller.role === 'User') {
+      throw new Error('Forbidden: Regular staff users cannot import products.');
+    }
+
+    if (!Array.isArray(productsList) || productsList.length === 0) {
+      throw new Error('No valid products to import.');
+    }
+
+    let addedCount = 0;
+    let updatedCount = 0;
+
+    productsList.forEach((item) => {
+      const name = (item.name || item.productName || item['Product Name'] || '').trim();
+      if (!name) return;
+
+      const rawPrice = item.price || item.unitPrice || item['Price (Rs.)'] || item['Price'] || 0;
+      const price = parseFloat(String(rawPrice).replace(/[^0-9.]/g, '')) || 0;
+      const category = (item.category || item['Category'] || 'T-Shirts').trim();
+
+      // Calculate tier
+      let tier = (item.tier || item['Tier'] || '').trim().toUpperCase();
+      if (!['ENTRY', 'MID-RANGE', 'PREMIUM'].includes(tier)) {
+        if (price < 3000) tier = 'ENTRY';
+        else if (price <= 4500) tier = 'MID-RANGE';
+        else tier = 'PREMIUM';
+      }
+
+      // ID calculation: CL-CAT-XXX
+      let id = (item.id || item.productId || item['Product ID'] || '').trim();
+      if (!id) {
+        const catCode = category.slice(0, 3).toUpperCase();
+        const num = String(state.products.length + 1).padStart(3, '0');
+        id = `CL-${catCode}-${num}`;
+      }
+
+      // Parse colors
+      let colors = item.colors || item['Colors'];
+      if (typeof colors === 'string') {
+        colors = colors.split(/[,|•]/).map((c) => c.trim()).filter(Boolean);
+      }
+      if (!Array.isArray(colors) || colors.length === 0) {
+        colors = ['Black', 'White'];
+      }
+
+      // Parse sizes
+      let sizes = item.sizes || item['Sizes'];
+      if (typeof sizes === 'string') {
+        sizes = sizes.split(/[,|•]/).map((s) => s.trim()).filter(Boolean);
+      }
+      if (!Array.isArray(sizes) || sizes.length === 0) {
+        sizes = ['S', 'M', 'L', 'XL'];
+      }
+
+      const existingIndex = state.products.findIndex((p) => p.id.toLowerCase() === id.toLowerCase());
+
+      const productRecord = {
+        id: id,
+        name: name,
+        category: category,
+        price: price,
+        positioning: (item.positioning || item['Positioning'] || 'Everyday / Basic').trim(),
+        tier: tier,
+        badge: item.badge || item['Badge'] ? String(item.badge || item['Badge']).trim().toUpperCase() : null,
+        colors: colors,
+        sizes: sizes,
+        description: (item.description || item['Description'] || `A clean ${category.toLowerCase()} designed with a relaxed silhouette and minimal aesthetic.`).trim(),
+        stock: parseInt(item.stock || item['Stock'], 10) || 50,
+        status: (item.status || item['Status'] || 'In Stock').trim(),
+        sku: id,
+        createdAt: item.createdAt || new Date().toISOString()
+      };
+
+      if (existingIndex > -1) {
+        state.products[existingIndex] = { ...state.products[existingIndex], ...productRecord };
+        updatedCount++;
+      } else {
+        state.products.push(productRecord);
+        addedCount++;
+      }
+
+      if (window.TryonSupabase && typeof window.TryonSupabase.pushProduct === 'function') {
+        window.TryonSupabase.pushProduct(productRecord);
+      }
+    });
+
+    const totalAffected = addedCount + updatedCount;
+    addAuditLog('Products imported', 'Product Catalog', `Imported ${addedCount} new piece(s), updated ${updatedCount} piece(s) via CSV`);
+    pushNotification('Products Imported', `Imported ${addedCount} new and updated ${updatedCount} items.`, 'success');
+    notify('product:import', { added: addedCount, updated: updatedCount, total: totalAffected });
+    return { added: addedCount, updated: updatedCount, total: totalAffected };
+  }
+
+  function exportProductsCSV(productsToExport) {
+    const list = Array.isArray(productsToExport) && productsToExport.length > 0 ? productsToExport : state.products;
+
+    const headers = [
+      'Product ID',
+      'Product Name',
+      'Category',
+      'Price (Rs.)',
+      'Positioning',
+      'Tier',
+      'Badge',
+      'Colors',
+      'Sizes',
+      'Description',
+      'Stock',
+      'Status'
+    ];
+
+    function escapeCSV(val) {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    }
+
+    const rows = list.map((p) =>
+      [
+        escapeCSV(p.id),
+        escapeCSV(p.name),
+        escapeCSV(p.category),
+        escapeCSV(p.price),
+        escapeCSV(p.positioning || ''),
+        escapeCSV(p.tier || ''),
+        escapeCSV(p.badge || ''),
+        escapeCSV((p.colors || []).join(', ')),
+        escapeCSV((p.sizes || []).join(', ')),
+        escapeCSV(p.description || ''),
+        escapeCSV(p.stock !== undefined ? p.stock : 50),
+        escapeCSV(p.status || 'In Stock')
+      ].join(',')
+    );
+
+    const csvContent = [headers.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.setAttribute('download', `tryon_products_catalog_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    pushNotification('Catalog Exported', `Exported ${list.length} products to CSV file.`, 'info');
+    return true;
+  }
+
+  function downloadProductsCSVTemplate() {
+    const headers = 'Product ID,Product Name,Category,Price (Rs.),Positioning,Tier,Badge,Colors,Sizes,Description,Stock,Status';
+    const sampleRows = [
+      'CL-TEE-009,"Heavyweight Boxy Tee","T-Shirts",2790,"Everyday / Basic","ENTRY","ESSENTIAL","Black, White, Washed Grey","S, M, L, XL","Dense organic cotton boxy everyday tee.",60,"In Stock"',
+      'CL-SHR-010,"Structured Cuban Shirt","Shirts",4290,"Smart Casual","MID-RANGE","NEW","Beige, Olive, Black","S, M, L, XL","Breathable poplin relaxed Cuban shirt with camp collar.",35,"In Stock"'
+    ];
+    const content = [headers, ...sampleRows].join('\r\n');
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'tryon_products_sample_template.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
     return true;
   }
 
   // --- RESET DEMO DATA ---
   function resetDemoData() {
     const currentSession = getCurrentUser();
+    if (currentSession && currentSession.role !== 'Admin') {
+      throw new Error('Forbidden: Only Administrators can reset demo data.');
+    }
     state = getInitialState();
     saveState(state);
     if (currentSession) {
       // Keep logged in user
       setCurrentUser(currentSession);
     }
+    addAuditLog('System reset', 'Entire Environment', 'All products, orders, customers, and expenses reset to initial state');
     pushNotification('Demo Data Reset', 'All products, orders, customers, and expenses reset to clean state.', 'info');
     notify('system:reset', null);
   }
@@ -857,12 +1532,28 @@
     // Expenses
     addExpense,
     deleteExpense,
-    // Users
+    // Users & Roles
     addUser,
     updateUser,
+    assignRoleByEmail,
+    toggleUserStatus,
+    deleteUser,
+    getAuditLogs,
+    addAuditLog,
     // Import & Batch
     importBatchData,
     revertImportBatch,
+    importProductsBatch,
+    exportProductsCSV,
+    downloadProductsCSVTemplate,
+    // Cart & Bag
+    getCart,
+    addToCart,
+    updateCartQuantity,
+    removeFromCart,
+    clearCart,
+    getCartTotals,
+    catalog: CATALOG_PRODUCTS,
     // Settings & Reset
     updateSettings,
     resetDemoData,

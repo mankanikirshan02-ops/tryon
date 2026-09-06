@@ -237,10 +237,16 @@
               <h3 class="text-sm font-bold text-[#111827]">Users & Role Management</h3>
               <p class="text-xs text-[#64748B] mt-0.5">Control staff access, assign permissions, and create accounts</p>
             </div>
-            <button id="btn-open-add-user" class="px-4 py-2 rounded-xl bg-[#163326] text-white text-xs font-semibold hover:bg-[#0E2219] flex items-center space-x-1.5 shadow-sm">
-              <i data-lucide="user-plus" class="w-4 h-4"></i>
-              <span>Add User</span>
-            </button>
+            <div class="flex items-center space-x-2">
+              <a href="#users" class="px-3.5 py-2 rounded-xl bg-[#E4EFE7] text-[#163326] text-xs font-bold hover:bg-[#D2E4D6] flex items-center space-x-1.5 transition-colors">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                <span>Open User Hub</span>
+              </a>
+              <button id="btn-open-add-user" class="px-4 py-2 rounded-xl bg-[#163326] text-white text-xs font-semibold hover:bg-[#0E2219] flex items-center space-x-1.5 shadow-sm">
+                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                <span>Add User</span>
+              </button>
+            </div>
           </div>
 
           <div class="overflow-x-auto border border-[#EAECEE] rounded-2xl">

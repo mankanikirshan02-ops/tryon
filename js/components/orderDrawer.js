@@ -111,19 +111,24 @@
               <div class="space-y-2.5">
                 ${order.items
                   .map(
-                    (item) => `
+                    (item) => {
+                      const code = ((item.productId || 'CL-TEE').split('-')[1] || item.name.slice(0, 2)).toUpperCase();
+                      return `
                   <div class="p-3 rounded-xl border border-[#EAECEE] bg-white flex items-center space-x-3">
-                    <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-lg object-cover bg-gray-50 border border-gray-100" />
+                    <div class="w-12 h-12 rounded-xl bg-[#E4EFE7] border border-[#CEEAD6] text-[#163326] flex items-center justify-center font-serif italic text-sm font-bold shrink-0">
+                      ${code}
+                    </div>
                     <div class="flex-1 min-w-0">
                       <p class="text-xs font-bold text-[#111827] truncate">${item.name}</p>
-                      <p class="text-[11px] text-[#64748B]">${item.category || 'Apparel'} • Qty: ${item.quantity}</p>
-                      <p class="text-xs font-semibold text-[#163326] mt-0.5">$${item.price.toFixed(2)} each</p>
+                      <p class="text-[11px] text-[#64748B]">${item.category || 'Apparel'} ${item.size ? '• Size: ' + item.size : ''} • Qty: ${item.quantity}</p>
+                      <p class="text-xs font-semibold text-[#163326] mt-0.5 font-mono">Rs. ${item.price.toLocaleString()} each</p>
                     </div>
                     <div class="text-right">
-                      <p class="text-xs font-bold text-[#111827]">$${item.total.toFixed(2)}</p>
+                      <p class="text-xs font-bold text-[#111827] font-mono">Rs. ${(item.total || item.price * item.quantity).toLocaleString()}</p>
                     </div>
                   </div>
-                `
+                `;
+                    }
                   )
                   .join('')}
               </div>

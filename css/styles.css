@@ -206,3 +206,15 @@ body {
   border-radius: 50%;
   margin-right: 6px;
 }
+
+/* Hide scrollbar for clean horizontal category navigation */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar,
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

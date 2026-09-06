@@ -13,6 +13,8 @@
     const currentUser = store.getCurrentUser();
     const state = store.getState();
     const unreadCount = state.notifications.filter((n) => !n.read).length;
+    const cart = store.getCart ? store.getCart() : [];
+    const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
     return `
       <header class="h-16 bg-white border-b border-[#EAECEE] px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
@@ -34,7 +36,7 @@
           </div>
         </div>
 
-        <!-- Right: Supabase Status, Notifications & User Profile -->
+        <!-- Right: Supabase Status, Shopping Bag, Notifications & User Profile -->
         <div class="flex items-center space-x-2 sm:space-x-3.5 relative">
           <!-- Supabase Status Badge -->
           <div id="supabase-status-pill" class="hidden sm:inline-flex items-center">
@@ -42,6 +44,18 @@
               <span class="w-1.5 h-1.5 rounded-full bg-[#137333] animate-pulse mr-1"></span>
               Supabase Connected
             </span>
+          </div>
+
+          <!-- Shopping Bag Button -->
+          <div class="relative">
+            <button id="btn-header-cart" class="relative w-9.5 h-9.5 rounded-xl border border-[#E5E7EB] bg-white hover:bg-[#F8F9FA] text-[#475569] hover:text-[#163326] flex items-center justify-center transition-colors" title="Shopping Bag">
+              <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+              ${
+                cartCount > 0
+                  ? `<span class="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full bg-[#163326] text-white text-[10px] font-bold border-2 border-white animate-pulse">${cartCount}</span>`
+                  : ''
+              }
+            </button>
           </div>
 
           <!-- Notification Bell -->
@@ -86,7 +100,13 @@
               <span class="text-xs font-semibold text-[#111827] hidden sm:inline max-w-[100px] truncate">
                 ${currentUser ? currentUser.name : 'Tryon Admin'}
               </span>
-              <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#E4EFE7] text-[#163326] hidden md:inline">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                currentUser && currentUser.role === 'Admin'
+                  ? 'bg-[#E4EFE7] text-[#163326] border border-[#CEEAD6]'
+                  : currentUser && currentUser.role === 'Manager'
+                  ? 'bg-[#E8F0FE] text-[#1A73E8] border border-[#D2E3FC]'
+                  : 'bg-[#F3E8FF] text-[#7E22CE] border border-[#E9D5FF]'
+              } hidden md:inline-flex items-center">
                 ${currentUser ? currentUser.role : 'Admin'}
               </span>
               <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-[#94A3B8]"></i>
@@ -97,7 +117,20 @@
               <div class="px-4 py-3 border-b border-[#F0F3F1] bg-[#FAFCFB]">
                 <p class="text-xs font-bold text-[#111827] truncate">${currentUser ? currentUser.name : 'Tryon Admin'}</p>
                 <p class="text-[11px] text-[#64748B] truncate">${currentUser ? currentUser.email : 'admin@tryon.demo'}</p>
-                <div class="mt-1.5 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E4EFE7] text-[#163326]">
+                <div class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  currentUser && currentUser.role === 'Admin'
+                    ? 'bg-[#E4EFE7] text-[#163326] border border-[#CEEAD6]'
+                    : currentUser && currentUser.role === 'Manager'
+                    ? 'bg-[#E8F0FE] text-[#1A73E8] border border-[#D2E3FC]'
+                    : 'bg-[#F3E8FF] text-[#7E22CE] border border-[#E9D5FF]'
+                }">
+                  <span class="w-1.5 h-1.5 rounded-full ${
+                    currentUser && currentUser.role === 'Admin'
+                      ? 'bg-[#163326]'
+                      : currentUser && currentUser.role === 'Manager'
+                      ? 'bg-[#1A73E8]'
+                      : 'bg-[#7E22CE]'
+                  } mr-1.5"></span>
                   Role: ${currentUser ? currentUser.role : 'Admin'}
                 </div>
               </div>
@@ -119,6 +152,16 @@
               </div>
 
               <div class="py-1">
+                ${
+                  currentUser && (currentUser.role === 'Admin' || currentUser.role === 'Manager')
+                    ? `
+                  <a href="#users" class="flex items-center space-x-2.5 px-4 py-2 text-xs text-[#334155] hover:bg-[#F8FAFC]">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-[#163326]"></i>
+                    <span class="font-semibold text-[#163326]">User Management</span>
+                  </a>
+                `
+                    : ''
+                }
                 <a href="#settings:profile" class="flex items-center space-x-2.5 px-4 py-2 text-xs text-[#334155] hover:bg-[#F8FAFC]">
                   <i data-lucide="user" class="w-4 h-4 text-[#64748B]"></i>
                   <span>Profile Settings</span>
@@ -248,6 +291,20 @@
         }
       });
     }
+
+    // Shopping Bag trigger
+    document.getElementById('btn-header-cart')?.addEventListener('click', () => {
+      if (window.TryonPageProducts && window.TryonPageProducts.openCartDrawer) {
+        window.TryonPageProducts.openCartDrawer();
+      } else {
+        window.location.hash = '#products';
+        setTimeout(() => {
+          if (window.TryonPageProducts && window.TryonPageProducts.openCartDrawer) {
+            window.TryonPageProducts.openCartDrawer();
+          }
+        }, 100);
+      }
+    });
 
     // Close popovers on click outside
     document.addEventListener('click', () => {

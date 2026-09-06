@@ -18,6 +18,7 @@
     const customers = state.customers;
 
     // Calculate metrics
+    const userRole = currentUser ? currentUser.role : 'Admin';
     const totalProducts = products.length;
     const totalOrders = orders.length;
     const totalRevenue = orders.reduce((acc, o) => acc + (o.total || 0), 0);
@@ -255,18 +256,23 @@
                 <div class="divide-y divide-[#F1F5F9]">
                   ${topSellingProducts
                     .map(
-                      (p) => `
+                      (p) => {
+                      const initials = ((p.id || 'CL-TEE').split('-')[1] || p.name.slice(0, 2)).toUpperCase();
+                      return `
                     <div class="p-4 flex items-center justify-between hover:bg-[#FAFCFB] transition-colors">
                       <div class="flex items-center space-x-3">
-                        <img src="${p.image}" class="w-10 h-10 rounded-xl object-cover border border-[#EAECEE]" />
+                        <div class="w-10 h-10 rounded-xl bg-[#E4EFE7] border border-[#CEEAD6] text-[#163326] flex items-center justify-center font-serif italic text-sm font-bold shrink-0">
+                          ${initials}
+                        </div>
                         <div>
-                          <p class="text-xs font-bold text-[#111827]">${p.name}</p>
+                          <p class="text-xs font-bold text-[#111827] uppercase">${p.name}</p>
                           <p class="text-[11px] text-[#64748B]">${p.category} • ${p.quantity} units sold</p>
                         </div>
                       </div>
-                      <span class="text-xs font-bold text-[#163326]">$${p.revenue.toFixed(2)}</span>
+                      <span class="text-xs font-bold text-[#163326] font-mono">Rs. ${p.revenue.toLocaleString()}</span>
                     </div>
-                  `
+                  `;
+                    }
                     )
                     .join('')}
                 </div>
@@ -335,6 +341,25 @@
                   </div>
                   <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-[#163326] transition-colors"></i>
                 </a>
+
+                ${
+                  userRole === 'Admin' || userRole === 'Manager'
+                    ? `
+                  <a href="#users" class="w-full flex items-center justify-between p-3 rounded-xl border border-[#EAECEE] hover:border-[#163326] hover:bg-[#F3F6F4] transition-all text-left group">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 rounded-lg bg-[#E4EFE7] text-[#163326] flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                      </div>
+                      <div>
+                        <p class="text-xs font-bold text-[#111827]">User Management</p>
+                        <p class="text-[10px] text-[#64748B]">Assign roles & manage team access</p>
+                      </div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 group-hover:text-[#163326] transition-colors"></i>
+                  </a>
+                `
+                    : ''
+                }
 
               </div>
             </div>

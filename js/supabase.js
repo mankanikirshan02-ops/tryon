@@ -146,6 +146,37 @@
           description: e.description || ''
         }));
       }
+
+      // Pull users
+      const { data: usrs, error: uErr } = await client.from('users').select('*');
+      if (!uErr && Array.isArray(usrs) && usrs.length > 0) {
+        const state = store.getState();
+        state.users = usrs.map((u) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          password: u.password || 'Demo@123',
+          role: u.role || 'User',
+          status: u.status || 'Active',
+          avatar: u.avatar || (u.name ? u.name.charAt(0).toUpperCase() : 'U'),
+          createdAt: u.created_at ? u.created_at.split('T')[0] : '2026-01-01'
+        }));
+      }
+
+      // Pull audit logs
+      const { data: logs, error: lErr } = await client.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(50);
+      if (!lErr && Array.isArray(logs) && logs.length > 0) {
+        const state = store.getState();
+        state.auditLogs = logs.map((l) => ({
+          id: l.id,
+          action: l.action,
+          performedBy: l.performed_by,
+          targetUser: l.target_user || '—',
+          details: l.details || '',
+          timestamp: l.created_at,
+          formattedDate: new Date(l.created_at).toLocaleDateString() + ' ' + new Date(l.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }));
+      }
     } catch (err) {
       console.warn('Supabase sync notice:', err);
     }
@@ -258,6 +289,46 @@
     } catch (e) {}
   }
 
+  async function pushUser(user) {
+    if (!client) return;
+    try {
+      await client.from('users').upsert({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        password: user.password || 'Demo@123',
+        role: user.role,
+        status: user.status,
+        avatar: user.avatar || user.name.charAt(0).toUpperCase()
+      });
+    } catch (e) {
+      console.warn('Supabase user push notice:', e);
+    }
+  }
+
+  async function deleteUser(userId) {
+    if (!client) return;
+    try {
+      await client.from('users').delete().eq('id', userId);
+    } catch (e) {}
+  }
+
+  async function pushAuditLog(logEntry) {
+    if (!client) return;
+    try {
+      await client.from('audit_logs').upsert({
+        id: logEntry.id,
+        action: logEntry.action,
+        performed_by: logEntry.performedBy,
+        target_user: logEntry.targetUser,
+        details: logEntry.details,
+        created_at: logEntry.timestamp || new Date().toISOString()
+      });
+    } catch (e) {
+      console.warn('Supabase audit log push notice:', e);
+    }
+  }
+
   window.TryonSupabase = {
     init,
     checkConnection,
@@ -272,7 +343,10 @@
     pushCustomer,
     deleteCustomer,
     pushExpense,
-    deleteExpense
+    deleteExpense,
+    pushUser,
+    deleteUser,
+    pushAuditLog
   };
 
   // Auto-init on script load

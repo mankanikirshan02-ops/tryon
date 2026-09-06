@@ -17,11 +17,15 @@
     const customerCount = state.customers.length;
 
     const isReportsActive = ['reports:sales', 'reports:revenue', 'reports:profit-loss'].includes(activeRoute);
+    const isUsersActive = activeRoute.startsWith('users');
     const userRole = currentUser ? currentUser.role : 'Admin';
+    const userCount = (state.users || []).length;
 
     // Role-based restrictions on sidebar items
-    const canSeeReports = userRole !== 'User';
-    const canSeeSettings = true; // Users can see settings but specific tabs (Users & Roles) are restricted for non-admin
+    const canSeeUsers = userRole === 'Admin' || userRole === 'Manager';
+    const canSeeReports = true; // All roles can see reports, but regular User only sees Sales Report
+    const canImportData = userRole !== 'User';
+    const canSeeSettings = true; // Users can see settings but specific tabs are restricted for non-admin
 
     return `
       <!-- Brand Logo -->
@@ -107,6 +111,31 @@
           }
         </a>
 
+        <!-- User Management (Admin & Manager) -->
+        ${
+          canSeeUsers
+            ? `
+          <a href="#users" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+            isUsersActive
+              ? 'nav-pill-active shadow-sm'
+              : 'text-[#5A6B63] hover:text-[#163326] hover:bg-[#F3F6F4]'
+          }">
+            <div class="flex items-center space-x-3">
+              <i data-lucide="shield-check" class="w-4 h-4"></i>
+              <span>User Management</span>
+            </div>
+            ${
+              userCount > 0
+                ? `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                    isUsersActive ? 'bg-[#163326] text-white' : 'bg-[#EAECEE] text-[#475569]'
+                  }">${userCount}</span>`
+                : ''
+            }
+          </a>
+          `
+            : ''
+        }
+
         <!-- Reports (Expandable Submenu) -->
         ${
           canSeeReports
@@ -135,28 +164,40 @@
                 <span>Sales Report</span>
               </a>
 
-              <a href="#reports:revenue" class="flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                activeRoute === 'reports:revenue'
-                  ? 'bg-[#E4EFE7] text-[#163326] font-semibold'
-                  : 'text-[#64748B] hover:text-[#163326] hover:bg-[#F3F6F4]'
-              }">
-                <span class="w-1.5 h-1.5 rounded-full ${activeRoute === 'reports:revenue' ? 'bg-[#163326]' : 'bg-[#CBD5E1]'}"></span>
-                <span>Revenue</span>
-              </a>
+              ${
+                userRole !== 'User'
+                  ? `
+                <a href="#reports:revenue" class="flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  activeRoute === 'reports:revenue'
+                    ? 'bg-[#E4EFE7] text-[#163326] font-semibold'
+                    : 'text-[#64748B] hover:text-[#163326] hover:bg-[#F3F6F4]'
+                }">
+                  <span class="w-1.5 h-1.5 rounded-full ${activeRoute === 'reports:revenue' ? 'bg-[#163326]' : 'bg-[#CBD5E1]'}"></span>
+                  <span>Revenue</span>
+                </a>
 
-              <a href="#reports:profit-loss" class="flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                activeRoute === 'reports:profit-loss'
-                  ? 'bg-[#E4EFE7] text-[#163326] font-semibold'
-                  : 'text-[#64748B] hover:text-[#163326] hover:bg-[#F3F6F4]'
-              }">
-                <span class="w-1.5 h-1.5 rounded-full ${activeRoute === 'reports:profit-loss' ? 'bg-[#163326]' : 'bg-[#CBD5E1]'}"></span>
-                <span>Profit & Loss</span>
-              </a>
+                <a href="#reports:profit-loss" class="flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  activeRoute === 'reports:profit-loss'
+                    ? 'bg-[#E4EFE7] text-[#163326] font-semibold'
+                    : 'text-[#64748B] hover:text-[#163326] hover:bg-[#F3F6F4]'
+                }">
+                  <span class="w-1.5 h-1.5 rounded-full ${activeRoute === 'reports:profit-loss' ? 'bg-[#163326]' : 'bg-[#CBD5E1]'}"></span>
+                  <span>Profit & Loss</span>
+                </a>
+              `
+                  : ''
+              }
 
-              <button id="btn-sidebar-import-data" class="w-full text-left flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-[#163326] hover:bg-[#E4EFE7] transition-colors">
-                <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-[#163326]"></i>
-                <span class="font-semibold">Import Data</span>
-              </button>
+              ${
+                canImportData
+                  ? `
+                <button id="btn-sidebar-import-data" class="w-full text-left flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-[#163326] hover:bg-[#E4EFE7] transition-colors">
+                  <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-[#163326]"></i>
+                  <span class="font-semibold">Import Data</span>
+                </button>
+              `
+                  : ''
+              }
             </div>
           </div>
           `

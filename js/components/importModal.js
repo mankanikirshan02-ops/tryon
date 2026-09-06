@@ -45,6 +45,14 @@
   }
 
   function open(initialTab = 'import') {
+    const currentUser = window.TryonStore ? window.TryonStore.getCurrentUser() : null;
+    if (currentUser && currentUser.role === 'User') {
+      if (window.TryonApp) {
+        window.TryonApp.showToast('Access Restricted: Regular staff users cannot import batch data.', 'warning');
+      }
+      return;
+    }
+
     currentTab = initialTab;
     currentStep = 1;
     uploadedFile = null;
@@ -53,6 +61,7 @@
     detectedMappings = {};
     validationResults = { valid: [], errors: [] };
     lastImportSummary = null;
+
     render();
   }
 
